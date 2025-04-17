@@ -3,22 +3,26 @@ __author__ = 'Forest Mars'
 __version__ = '0.0.1' 
 __all__ = ["move_and_process_file"]
 
-from datetime import datetime
-from airflow import DAG
-from airflow.operators.python import PythonOperator
 import os
 import shutil
+from datetime import datetime
 
-import config/utils.py
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+
+from config.utils import load_app_env
+
 
 DAG_ID = "proces_prd"
-DAG_DESC = "processes new files in the prds directory"
+DAG_DESC = "Processes new files in the PRDs directory"
 
-# Define paths
-BASE_PATH = os.path.expanduser("~/airflow")
-WATCHED_DIR = os.path.join(BASE_PATH, "artifacts/prds/new")
-DONE_DIR = os.path.join(BASE_PATH, "artifacts/prds/done")
-PROCESSED_DIR = os.path.join(BASE_PATH, "artifacts/models/new")
+# Load environment and get BASE_PATH
+BASE_PATH = load_app_env()
+
+# Define paths relative to BASE_PATH
+WATCHED_DIR = os.path.join(BASE_PATH, "artifacts", "prds", "new")
+DONE_DIR = os.path.join(BASE_PATH, "artifacts", "prds", "done")
+PROCESSED_DIR = os.path.join(BASE_PATH, "artifacts", "models", "new")
 
 # Ensure directories exist
 for directory in [WATCHED_DIR, DONE_DIR, PROCESSED_DIR]:
@@ -49,7 +53,7 @@ def move_and_process_file():
 
 with DAG(
     dag_id=DAG_ID,
-
+    description=DAG_DESC,
     start_date=datetime(2025, 4, 15),
     schedule="@hourly",
     catchup=False,
@@ -59,4 +63,3 @@ with DAG(
         task_id="move_and_process_file",
         python_callable=move_and_process_file,
     )
-
