@@ -1,0 +1,68 @@
+.auth
+.env
+.env.*
+
+# Node.js
+node_modules/
+dist/
+build/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.egg-info/
+.eggs/
+*.pyo
+pip-wheel-metadata/
+
+# Airflow
+airflow.db
+airflow-webserver.pid
+logs/
+.venv/
+.venv*/
+.env.airflow
+unittest.cfg
+airflow.cfg
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# General
+*.log
+*.bak
+*.tmp
+*.swp
+*.swo
+*.iml
+
+# Coverage reports
+coverage/
+htmlcov/
+*.cover
+*.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.lcov
+
+# Other
+*.pem
+*.so

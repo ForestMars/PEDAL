@@ -1,0 +1,33 @@
+# User Management System PRD
+
+## Overview
+A system for managing user accounts and their associated data.
+
+## User Entity
+- Users have a unique username and email
+- Users can have a first and last name
+- Users have a date of birth
+- Users can be active or inactive
+- Users can have multiple roles
+
+## Role Entity
+- Roles have a name and description
+- Roles can have multiple permissions
+- Users can be assigned multiple roles
+
+## Permission Entity
+- Permissions have a name and description
+- Permissions define what actions a user can perform
+- Permissions are assigned to roles
+
+## Relationships
+- User has many Roles (many-to-many)
+- Role has many Permissions (many-to-many)
+- User has many Permissions (through Roles)
+
+## Business Rules
+1. Usernames must be unique
+2. Email addresses must be unique
+3. Users must have at least one role
+4. Roles must have at least one permission
+5. Users cannot be deleted, only deactivated 
