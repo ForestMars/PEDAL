@@ -1,4 +1,4 @@
-# process_prd.py - Define
+# process_prd.py - Defines a DAG to process new files in the PRDs directory
 __author__ = 'Forest Mars'
 __version__ = '0.0.1' 
 __all__ = ["move_and_process_file"]
@@ -10,8 +10,8 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
+import airflow_config
 from config.utils import load_app_env
-
 
 DAG_ID = "proces_prd"
 DAG_DESC = "Processes new files in the PRDs directory"

@@ -1,5 +1,5 @@
 # utils.py - Mostly preloading functions needed to clean up Airflow model. 
-__author__ = 
+__author__ = 'Forest Mars'
 __version__ = '0.0.1' 
 __all__ = ['load_app_env']
 
