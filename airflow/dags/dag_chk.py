@@ -28,14 +28,14 @@ try:
 except ModuleNotFoundError as e:
     print("\nFailed to import airflow_config:", e)
 
-from config.utils import load_app_env
-
+# This import should be wrapped in try-except to prevent failure if the config is missing
+try:
+    from config.utils import load_app_env
+except ModuleNotFoundError as e:
+    print("\nFailed to import from config.utils:", e)
 
 DAG_ID = "dag_chk"
 DAG_DESC = "Sanity check DAG to confirm Airflow setup."
-
-# Load environment (not used)
-# BASE_PATH = load_app_env()
 
 def print_sanity_check():
     print("✅ This is an example DAG.")

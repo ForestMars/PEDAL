@@ -13,7 +13,7 @@ from airflow.operators.python import PythonOperator
 import airflow_config
 from config.utils import load_app_env
 
-DAG_ID = "proces_prd"
+DAG_ID = "process_prd"
 DAG_DESC = "Processes new files in the PRDs directory"
 
 # Load environment and get BASE_PATH
@@ -29,33 +29,54 @@ for directory in [WATCHED_DIR, DONE_DIR, PROCESSED_DIR]:
     os.makedirs(directory, exist_ok=True)
 
 def move_and_process_file():
+    print(f"Checking for files in: {WATCHED_DIR}")
     file_names = os.listdir(WATCHED_DIR)
+    
     if not file_names:
+        print("No new files found.")
         return
+
+    print(f"Found files: {file_names}")
 
     for file_name in file_names:
         input_path = os.path.join(WATCHED_DIR, file_name)
         done_path = os.path.join(DONE_DIR, file_name)
         processed_path = os.path.join(PROCESSED_DIR, f"processed_{file_name}")
+
+        print(f"Processing file: {input_path}")
         
         # Move file to 'done'
-        shutil.move(input_path, done_path)
-        
-        # Process the file by appending "~~FILE HAS BEEN PROCESSED~~"
-        with open(done_path, 'r') as f:
-            content = f.read()
-        
+        try:
+            shutil.move(input_path, done_path)
+            print(f"Moved {input_path} to {done_path}")
+        except Exception as e:
+            raise RuntimeError(f"Failed to move {input_path} to {done_path}: {e}")
+
+        # Read the moved file
+        try:
+            with open(done_path, 'r') as f:
+                content = f.read()
+        except Exception as e:
+            raise RuntimeError(f"Failed to read {done_path}: {e}")
+
+        # Process content
         processed_content = content + "\n~~FILE HAS BEEN PROCESSED~~"
-        
-        # Write processed content to new location
-        with open(processed_path, 'w') as f:
-            f.write(processed_content)
+
+        # Write processed content to PROCESSED_DIR
+        try:
+            with open(processed_path, 'w') as f:
+                f.write(processed_content)
+            print(f"Wrote processed file to {processed_path}")
+        except Exception as e:
+            raise RuntimeError(f"Failed to write {processed_path}: {e}")
+
 
 with DAG(
     dag_id=DAG_ID,
     description=DAG_DESC,
     start_date=datetime(2025, 4, 15),
-    schedule="@hourly",
+    #schedule="@hourly",
+    schedule="*/5 * * * *",
     catchup=False,
     default_args={"owner": "admin", "retries": 0},
 ) as dag:
