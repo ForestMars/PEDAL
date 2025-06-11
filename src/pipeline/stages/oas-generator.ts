@@ -1,3 +1,9 @@
+/**  
+ * @fileoverview Given a domain model in typespec format, generates a Open API specification file
+ * @version 0.0.1
+ * @license All rights reserved. 
+ */ 
+
 import { DomainEntity, DomainMethod } from './domain-enhancer';
 
 interface OpenAPISchema {

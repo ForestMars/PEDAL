@@ -1,3 +1,12 @@
+/**  
+ * @fileoverview Given a PRD meeting our requirements we generate a domain model (currently using a general purpose LLM)
+ * @version 0.0.1
+ * @license All rights reserved. 
+ * 
+ * @TODO We want to be able to swap out AI providers easily. 
+
+ */ 
+
 import OpenAI from 'openai';
 import { z } from 'zod';
 
