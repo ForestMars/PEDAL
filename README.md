@@ -253,4 +253,4 @@ pytest src/pipeline
 
 ---
 
-MIT © 2025 Forest Mars
+License: All Rights Reserved, Contiuum Software 
