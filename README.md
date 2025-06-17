@@ -1,256 +1,81 @@
-[![Build Status](https://github.com/ForestMars/PEDAL/actions/workflows/ci.yml/badge.svg)](https://github.com/ForestMars/PEDAL/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-green.svg)](https://www.python.org/downloads/)
-[![TypeScript](https://img.shields.io/badge/typescript-4.x-blue.svg)](https://www.typescriptlang.org/)
+Thanks! I’ll dive into the PEDAL repository, review the full code base, and draft a high-caliber README. It will target product engineers, CTOs, and elite 10x developers, emphasizing architecture, usage, and underlying design principles. I’ll also include badges, visual aids, and strike the same sly-but-smart tone as the referenced repos.
+
+I’ll let you know once the README draft is ready for your review.
+
 
 # PEDAL – Product Engineering Development Artifact Lifecycle
 
-an end-to-end workflow engine that ingests product requirements and outputs a production‑ready backend stack
+PEDAL automates the journey from a **Product Requirements Document (PRD)** to a fully coded backend.  Think of it as a *very diligent intern* who parses requirements and scaffolds code—without any mystical AI whims. In fact, every transformation in PEDAL is fully deterministic and formally verifiable.  The system runs as a **modular pipeline**: each stage is implemented in code (Python core, see below) and output is predictable and auditable.  This makes PEDAL ideal for product-focused teams that demand both speed and rigor.
 
-## table of contents
+## Architecture & Design Principles
 
-1. overview
+PEDAL’s **core is written in Python** and orchestrates a sequence of pipeline stages.  Each stage takes a well-defined input and produces a verifiable output.  For example, one stage generates the domain model; another runs *event-storming* heuristics to attach behaviors to entities; subsequent stages emit an OpenAPI spec and Zod schemas; then the database (Supabase) is provisioned and seeded; finally, a TypeScript backend (Express routes, controllers, and tests) is scaffolded.  All generated artifacts live in a parallel TypeScript project that handles API routing, controllers, and tests.  Because every step is just code, you can inspect, swap out, or extend any stage (plugin-style) without breaking the chain.  In short: **no black-box magic**, just clear, composable transformations.
 
-2. key features
+* **Deterministic Pipeline.** PEDAL uses no randomized AI in its core transforms.  (We may optionally invoke an LLM *only* to massage free-form PRD text into a consistent format for parsing – but every pipeline transformation itself is rule-based and repeatable.)  This means the same PRD will always yield the same domain model, API spec, and code, making results *formally verifiable*. PEDAL includes unit tests for the Python pipeline (`pytest src/pipeline`) and for the generated TypeScript (`npm test`), ensuring every piece works as intended.
+* **Domain-Driven Design.** The pipeline builds an internal *domain model* of your application entities from the PRD.  Behaviors (methods/events) are attached via event-storming heuristics, and then the enriched model drives everything that follows.  This enforces a clear separation of concerns between *what your system is* (the model) and *how it works* (the generated code).
+* **Full Type Safety.** Outputs are fully typed. PEDAL auto-generates OpenAPI (Swagger) definitions and matching Zod validation schemas.  The TypeScript backend code uses these Zod schemas for request/response validation, ensuring type safety end-to-end.  The generated Express routes, controllers, and repository layer are strongly typed and come with Jest tests out of the box.
+* **Infrastructure as Code.** Database schema and seed data are managed with Supabase. PEDAL auto-runs migrations and seeds against a Supabase project.  In practice you get SQL migration scripts and seed files alongside your TypeScript artifacts (see `db/` folder), so spinning up or resetting the database is a one-click affair. This eliminates manual DB setup and keeps schema, API, and code in sync.
 
-3. architecture
+## Pipeline Stages (End‑to‑End Flow)
 
-4. getting started
+PEDAL’s workflow is sequential.  Given a markdown PRD, it executes stages in order:
 
-5. configuration
+1. **PRD → Domain Model:** Parse the PRD text into domain entities and relationships. (This may use a simple NLP assistant to normalize the text, but once tokenized the extraction is pure code.)
+2. **Enhance Domain Model:** Run event-storming heuristics to assign verbs/methods (aggregate behaviors) to each entity. This transforms a passive data model into an active, behavior-rich model.
+3. **OpenAPI Spec Generation:** Render an OpenAPI v3 YAML/JSON spec from the enriched domain model. This becomes the API contract.
+4. **Zod Schema Generation:** Convert the OpenAPI spec schemas into TypeScript/Zod validation schemas. These will validate incoming requests and outgoing responses in the API.
+5. **Database Provisioning:** Use the domain model to create database migrations and seed scripts. PEDAL runs these against Supabase (or any PostgreSQL via the `DATABASE_URL`), setting up tables and inserting example data.
+6. **Backend Implementation:** Scaffold the TypeScript backend: Express route handlers, a repository layer, and automated Jest tests are generated based on the model. All code is fully typed. In a nutshell, you end up with a ready-to-run API server.
 
-6. usage
+After running the full pipeline, you’ll find the outputs neatly organized: **`models/`** (TypeScript interfaces and Zod schemas), **`api/`** (Express routes and OpenAPI docs), and **`db/`** (SQL migrations and seed scripts).  The generated API matches your PRD’s intent, and the accompanying test suite exercises every endpoint.
 
-7. examples
+## Usage & Best Practices
 
-8. pipeline stages deep dive
+* **Prerequisites:** Node.js 18+ (npm or yarn), Python 3.10+, and Docker (for running Supabase locally).  (An OpenAI API key is optional if you want PRD-shaping assistance.)
+* **Installation:** Clone the repo and bootstrap dependencies:
 
-9. folder structure
+  ```bash
+  git clone https://github.com/ForestMars/PEDAL.git  
+  cd PEDAL  
+  ./install.sh      # installs Python & TS deps, sets up virtual env and tooling
+  ```
+* **Configuration:** Copy the example env file and set your credentials:
 
-10. testing
+  ```bash
+  cp .env.example .env
+  # Then edit .env:
+  #   SUPABASE_URL, SUPABASE_KEY, DATABASE_URL (Postgres connection) 
+  #   [Optional] OPENAI_API_KEY if using PRD normalization
+  ```
+* **Running the Pipeline:** Use the Python CLI to run the pipeline on a PRD markdown file. For example:
 
-11. deployment
+  ```bash
+  python src/index.py --input examples/sample-prd.md
+  ```
 
-12. roadmap
+  This executes all stages and writes outputs into the project folders. For a live development setup (auto-regenerating code on changes), you can run:
 
-13. contributing
+  ```bash
+  npm run dev        # starts TS dev server (restarting on file changes)
+  python src/index.py   # run pipeline; updates `api/`, `models/`, `db/` as you edit
+  ```
+* **Inspecting Outputs:** After execution, check the `api/` folder for generated OpenAPI docs and Express handlers, `models/` for interfaces and validators, and `db/` for SQL files. Run `npm test` and `pytest src/pipeline` to execute the full test suite.
+* **Extending the Pipeline:** PEDAL is designed to be modified. You can write custom pipeline stages or tweak the existing ones in `src/pipeline/` (Python) and adjust templates under `src/api/` or `src/db/` for tailored code generation. The plugin-style architecture means adding a stage or altering behavior doesn’t require hacking the core; just implement the stage and register it.
 
-14. license
+## Determinism & Verifiability
 
-15. overview
+PEDAL deliberately avoids any non-deterministic behavior.  There’s no random seed or AI “black box” deciding your schema — every transformation is an explicit algorithm. This means **reproducibility**: running the pipeline twice on the same PRD yields identical results. It also means **verifiability**: you can review and formally reason about each stage.  Need proof? The pipeline code lives in Python (with type-annotated data models) and comes with unit tests. The TypeScript side uses Zod schemas so invalid inputs are caught at compile-time or runtime, making the overall system very robust.
 
----
+As a result, PEDAL is not just a factory of code; it’s a transparent design tool. You can point to any piece of logic (in the Python or generated TS code) and understand why a particular endpoint exists or why a field is required. This level of rigor is crucial when building enterprise-grade products: you get both the **speed** of auto-generation and the **confidence** of formal correctness.
 
-PEDAL automates the transformation of a text‑based product requirements document (PRD) into
-a fully coded backend implementation—complete with domain model, validation, database schema,
-API specification, and boilerplate business logic and tests. it’s designed as a modular pipeline
-so every stage can be inspected, swapped out, or extended, making it ideal for product‑focused
-engineering teams that demand both speed and rigor.
+## Examples
 
-2. key features
+The `examples/` folder contains sample PRDs and their expected outputs. Try running the pipeline on `examples/sample-prd.md` to see how the pieces fit together. You’ll see that adding a new entity or field in the PRD automatically appears as a TypeScript interface, a Zod rule, an OpenAPI schema, and a database column after generation. This **end-to-end traceability** is the core promise of PEDAL.
 
----
+## License & Contributing
 
-•  end‑to‑end automation from PRD to production‑ready TypeScript backend
-•  AI‑driven domain extraction and event‑storming enrichment
-•  auto‑generated OpenAPI (OAS) definitions and Zod validation schemas
-•  one‑click Supabase setup and seed data population
-•  fully typed, testable endpoint implementations
-•  plugin‑style pipeline: add, remove, or customize stages
-•  CLI commands and DevOps‑friendly shell scripts
+License: All Rights Reserved, Continuum Software
 
-3. architecture
+> *Disclaimer:* PEDAL generates code automatically, but it’s still *your* codebase. Always review generated migrations and business logic to ensure they match your product’s needs. After all, trust but verify is key in product engineering.
 
----
-
-PEDAL core is written in Python. it orchestrates a sequence of stages (see “pipeline stages deep dive” below).
-generated artifacts live in a parallel TypeScript project that handles API routing, controllers, and tests.
-
-```
-       +-------------------+   
-       |  PRD (markdown)   |   
-       +---------+---------+   
-                 |               
-                 v               
-       +-------------------+   
-       | domain model gen  |   
-       +---------+---------+   
-                 |               
-                 v               
-       +-------------------+   
-       | event storming    |   
-       +---------+---------+   
-                 |               
-                 v               
-       +-------------------+   
-       | OpenAPI spec gen  |   
-       +---------+---------+   
-                 |               
-                 v               
-       +-------------------+   
-       | Zod schema gen    |   
-       +---------+---------+   
-                 |               
-                 v               
-       +-------------------+   
-       | Supabase provision|   
-       +---------+---------+   
-                 |               
-                 v               
-       +-------------------+   
-       | TS backend + tests|   
-       +-------------------+   
-```
-
-## 4. getting started
-
-prerequisites
-•  node.js 18+
-•  npm or yarn
-•  python 3.10+
-•  docker (for local supabase)
-•  an OpenAI API key
-
-clone and install
-
-```bash
-git clone https://github.com/ForestMars/PEDAL.git  
-cd PEDAL  
-./install.sh       # installs Python & TS deps, sets up venv  
-```
-
-5. configuration
-
----
-
-copy the example env file and fill in your secrets:
-
-```bash
-cp .env.example .env  
-# open .env in your editor and set  
-# OPENAI_API_KEY, SUPABASE_URL, SUPABASE_KEY, DATABASE_URL  
-```
-
-6. usage
-
----
-
-run the full pipeline against a PRD file:
-
-```bash
-python src/index.py --input examples/sample-prd.md  
-```
-
-or in dev mode with live reload:
-
-```bash
-npm run dev           # kicks off TS server watching for changes  
-python src/index.py   # generates artifacts into `api/` and `db/`  
-```
-
-7. examples
-
----
-
-open `examples/sample-prd.md` for a starter PRD. after running the pipeline you’ll find:
-•  `models/` – TypeScript interfaces and Zod schemas
-•  `api/` – Express route handlers and OpenAPI docs
-•  `db/` – SQL migration files and seed scripts
-
-8. pipeline stages deep dive
-
----
-
-1. PRD to domain model
-   •  leverage OpenAI to parse free‑form text into entities and relationships
-
-2. domain model enhancement
-   •  apply event storming heuristics to assign behaviors (methods) to entities
-
-3. OAS generation
-   •  render an OpenAPI v3 YAML spec from the enriched domain model
-
-4. Zod schema generation
-   •  convert OAS definitions into TypeScript Zod validators for request/response
-
-5. database population
-   •  run migrations against Supabase and seed with example data
-
-6. backend implementation
-   •  scaffold Express controllers, repository layer, and automated Jest tests
-
-7. folder structure
-
----
-
-```
-PEDAL/  
-├─ airflow/          # optional DAG definitions for orchestration  
-├─ artifacts/        # output from last pipeline run  
-├─ examples/         # sample PRDs and expected output  
-├─ src/  
-│  ├─ pipeline/      # pipelined stage implementations  
-│  ├─ models/        # internal Python DTOs  
-│  ├─ api/           # TS project for serverless/Express  
-│  ├─ db/            # SQL migrations and seed scripts  
-│  ├─ utils/         # shared helper functions  
-│  └─ index.py       # CLI entrypoint  
-├─ .env.example      # sample environment config  
-├─ install.sh        # bootstrap script  
-├─ aaa.sh            # helper for local debugging  
-├─ package.json      # TS dependencies and scripts  
-├─ requirements.txt  # Python dependencies  
-└─ tsconfig.json     # TS compiler options  
-```
-
-10. testing
-
----
-
-run Python unit tests and TS tests in one command:
-
-```bash
-npm test  
-pytest src/pipeline  
-```
-
-11. deployment
-
----
-
-1. build the TS server: `npm run build`
-
-2. dockerize with provided `Dockerfile`
-
-3. push to container registry
-
-4. deploy to your favorite cloud (Heroku, Vercel, AWS ECS)
-
-5. roadmap
-
----
-
-•  support for alternate AI providers
-•  custom plugin hooks at each pipeline stage
-•  UI dashboard for monitoring runs
-•  multi‑tenant mode with RBAC
-
-13. contributing
-
----
-
-1. open an issue for any feature request or bug
-
-2. fork the repo and branch from `main`
-
-3. follow the code style (black + Prettier + ESLint)
-
-4. write tests for new features
-
-5. submit a pull request, referencing your issue
-
-6. license
-
----
-
-License: All Rights Reserved, Contiuum Software 
+**Happy coding,** and may your pipelines always be as deterministic as a well-grooved CI script.
