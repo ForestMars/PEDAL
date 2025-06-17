@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PEDAL PRD Schema"
+version: "0.1.0"
+
+type: "object"
+required: ["$schema", "title", "version", "author", "date", "status", "user_stories"]
+properties:
+  $schema:
+    type: "string"
+    enum: ["http://json-schema.org/draft-07/schema#"]
+  title:
+    type: "string"
+  version:
+    type: "string"
+    pattern: "^\d+\.\d+\.\d+$"
+  author:
+    type: "string"
+  date:
+    type: "string"
+    format: "date"
+  status:
+    type: "string"
+    enum: ["Draft", "Review", "Approved"]
+  user_stories:
+    type: "array"
+    items:
+      type: "object"
+      required: ["id", "title", "as_a", "i_want", "so_that", "scenarios"]
+      properties:
+        id:
+          type: "string"
+        title:
+          type: "string"
+        as_a:
+          type: "string"
+        i_want:
+          type: "string"
+        so_that:
+          type: "string"
+        scenarios:
+          type: "array"
+          items:
+            type: "object"
+            required: ["given", "when", "then"]
+            properties:
+              given:
+                type: "string"
+              when:
+                type: "string"
+              then:
+                type: "string"

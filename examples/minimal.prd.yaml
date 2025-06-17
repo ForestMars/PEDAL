@@ -1,0 +1,17 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Minimal Project Management PRD"
+version: "0.1.0"
+author: "PEDAL Team"
+date: "2024-03-17"
+status: "Draft"
+
+user_stories:
+  - id: "US-001"
+    title: "Project Creation"
+    as_a: "project manager"
+    i_want: "to create new projects"
+    so_that: "I can organize my team's work"
+    scenarios:
+      - given: "I am logged in"
+        when: "I click the 'Create Project' button"
+        then: "a new project is created"
