@@ -1,6 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PEDAL PRD Schema"
 version: "0.1.0"
+description: "Schema for validating Product Requirements Documents (PRDs) in the PEDAL system."
 
 type: "object"
 required: ["$schema", "title", "version", "author", "date", "status", "user_stories"]

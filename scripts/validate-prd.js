@@ -6,12 +6,14 @@ const Ajv = require('ajv');
 const addFormats = require('ajv-formats');
 const yaml = require('js-yaml');
 
+const SCHEMA_FILE = 'prd-schema.yaml';
+
 // Initialize Ajv
 const ajv = new Ajv({ allErrors: true, strict: false });
 addFormats(ajv);
 
 // Load schema
-const schemaPath = path.join(__dirname, '../schema/prd-schema.yaml');
+const schemaPath = path.join(__dirname, '../schema', SCHEMA_FILE);
 const schema = yaml.load(fs.readFileSync(schemaPath, 'utf8'));
 
 // Create validator
