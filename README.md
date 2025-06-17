@@ -68,7 +68,7 @@ As a result, PEDAL is not just a factory of code; it’s a transparent design to
 
 ## Examples
 
-The `examples/` folder contains sample PRDs and their expected outputs. Try running the pipeline on `examples/sample-prd.md` to see how the pieces fit together. You’ll see that adding a new entity or field in the PRD automatically appears as a TypeScript interface, a Zod rule, an OpenAPI schema, and a database column after generation. This **end-to-end traceability** is the core promise of PEDAL.
+The `examples/` folder contains a sample PRD (more to come) and their expected outputs. Try running the pipeline on `examples/sample-prd.md` to see how the pieces fit together. You’ll see that adding a new entity or field in the PRD automatically appears as a TypeScript interface, a Zod rule, an OpenAPI schema, and a database column after generation. This **end-to-end traceability** is the core promise of PEDAL.
 
 ## License & Contributing
 
