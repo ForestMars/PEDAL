@@ -10,7 +10,7 @@ An Architecture Decision Record is a document that captures an important archite
 
 | ID | Title | Status | Date |
 |----|-------|--------|------|
-| [ADR-001](./001-prd-to-typespec-transformation.md) | PRD to TypeSpec Transformation Strategy | Accepted | 2024-03-17 |
+| [ADR-001](./001-prd-to-typespec-transformation.md) | PRD to TypeSpec Transformation Strategy | Accepted | 2025-06-16 |
 
 ## ADR Process
 
