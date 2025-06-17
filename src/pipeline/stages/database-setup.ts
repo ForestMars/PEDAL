@@ -1,3 +1,10 @@
+/**  
+ * @fileoverview Setups a database based on the OAS file.
+ * @version 0.0.1
+ * @license All rights reserved, Continuum Software
+ * 
+ */ 
+
 import { createClient } from '@supabase/supabase-js';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';

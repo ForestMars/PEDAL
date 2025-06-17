@@ -1,3 +1,9 @@
+/**  
+ * @fileoverview 
+ * @version 0.0.1
+ * @license All rights reserved. 
+ */ 
+
 import express from 'express';
 import { OpenAPISchema } from '../pipeline/stages/oas-generator';
 import { DomainMethod } from '../pipeline/stages/domain-enhancer';

@@ -1,3 +1,10 @@
+/**  
+ * @fileoverview Given a valid domain model and OAS file, generates a Zod schema for each entity
+ * @version 0.0.1
+ * @license All rights reserved, Continuum Software
+ * 
+ */ 
+
 import { z } from 'zod';
 import { OpenAPISchema } from './oas-generator';
 

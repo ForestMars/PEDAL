@@ -1,3 +1,9 @@
+/**  
+ * @fileoverview Tests parser based on sample prd (major assumption that sample.prd is unchanged!) 
+ * @version 0.0.1
+ * @license All rights reserved. 
+ */ 
+
 import { parsePRDToTypeSpec } from '../prd-parser';
 import fs from 'fs';
 import path from 'path';
@@ -21,7 +27,7 @@ describe('TypeSpec PRD Parser', () => {
 
   it('should generate TypeSpec with proper models', async () => {
     const { program } = await parsePRDToTypeSpec({ prd: samplePRD });
-    
+        
     // Check for User model
     const userModel = program.models.find(m => m.name === 'User');
     expect(userModel).toBeDefined();

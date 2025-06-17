@@ -1,3 +1,10 @@
+/**  
+ * @fileoverview 
+ * @version 0.0.1
+ * @license All rights reserved, Continuum Software
+ *
+ */ 
+
 import { z } from 'zod';
 import { DomainEntity } from '../stages/prd-parser';
 

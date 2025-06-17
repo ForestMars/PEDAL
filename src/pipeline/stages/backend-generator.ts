@@ -1,3 +1,10 @@
+/**  
+ * @fileoverview Given an OAS file and a Zod schema, stubs out backend functionality
+ * @version 0.0.1
+ * @license All rights reserved, Continuum Software
+ *
+ */ 
+
 import { OpenAPISchema } from './oas-generator';
 import { DomainMethod } from './domain-enhancer';
 import { z } from 'zod';
