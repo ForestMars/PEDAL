@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+version: "0.1.0"
+
+entities:
+  - name: "User"
+    type: "model"
+    properties:
+      - name: "id"
+        type: "string"
+        required: true
+        decorators: ["@key"]
+      - name: "username"
+        type: "string"
+        required: true
+        description: "Unique username for the user"
+      - name: "email"
+        type: "string"
+        required: true
+        description: "User's email address"
+        decorators: ["@format", "email"]
+
+  - name: "Role"
+    type: "model"
+    properties:
+      - name: "id"
+        type: "string"
+        required: true
+        decorators: ["@key"]
+      - name: "name"
+        type: "string"
+        required: true
+        description: "Role name"
+
+relationships:
+  - source: "User"
+    target: "Role"
+    type: "many-to-many"
+    description: "Users can have multiple roles"
+
+operations:
+  - name: "createUser"
+    entity: "User"
+    type: "create"
+    parameters:
+      - name: "username"
+        type: "string"
+        required: true
+      - name: "email"
+        type: "string"
+        required: true
+    decorators: ["@http", "POST", "/users"]
+
+  - name: "getUser"
+    entity: "User"
+    type: "read"
+    parameters:
+      - name: "id"
+        type: "string"
+        required: true
+    decorators: ["@http", "GET", "/users/{id}"] 
