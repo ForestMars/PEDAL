@@ -1,10 +1,22 @@
-import { Program, createTypeSpecProgram } from "@typespec/compiler";
-import OpenAI from 'openai';
+import { Program, createProgram } from "@typespec/compiler";
+import { load as yamlLoad, YAMLNode, Kind } from 'yaml-ast-parser';
+import fs from 'fs';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+interface PRD {
+  title: string;
+  version: string;
+  user_stories: Array<{
+    title: string;
+    as_a: string;
+    i_want: string;
+    so_that: string;
+    scenarios: Array<{
+      given: string;
+      when: string;
+      then: string;
+    }>;
+  }>;
+}
 
 export async function parsePRDToTypeSpec(input: { prd?: string }): Promise<{ program: Program }> {
   if (!input.prd) {
@@ -12,34 +24,20 @@ export async function parsePRDToTypeSpec(input: { prd?: string }): Promise<{ pro
   }
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "system",
-          content: `You are a TypeSpec generation assistant. Convert the PRD into TypeSpec code.
-          Follow these rules:
-          1. Use @doc decorators for descriptions
-          2. Use @key decorators for unique fields
-          3. Use proper TypeSpec types (string, int32, etc)
-          4. Include proper relationships using @relationship decorators
-          5. Include proper HTTP operations using @http decorators
-          6. Follow REST API best practices
-          7. Use proper namespaces and models
-          8. Include proper validation rules
-          Return only the TypeSpec code, no explanations.`
-        },
-        {
-          role: "user",
-          content: input.prd
-        }
-      ]
-    });
+    // Parse PRD YAML into AST
+    const ast = yamlLoad(input.prd);
+    if (!ast || ast.kind !== Kind.MAP) {
+      throw new Error('Invalid PRD format: root must be a map');
+    }
 
-    const typeSpecCode = completion.choices[0].message.content;
+    // Convert AST to structured object
+    const prd = convertASTToPRD(ast);
+    
+    // Convert PRD structure to TypeSpec code
+    const typeSpecCode = generateTypeSpec(prd);
     
     // Create TypeSpec program
-    const program = await createTypeSpecProgram(typeSpecCode);
+    const program = await createProgram(typeSpecCode);
     
     // Validate the program
     const diagnostics = program.diagnostics;
@@ -52,4 +50,94 @@ export async function parsePRDToTypeSpec(input: { prd?: string }): Promise<{ pro
     console.error('Error parsing PRD to TypeSpec:', error);
     throw error;
   }
+}
+
+function convertASTToPRD(node: YAMLNode): PRD {
+  if (node.kind !== Kind.MAP) {
+    throw new Error('Expected map node');
+  }
+
+  const prd: PRD = {
+    title: '',
+    version: '',
+    user_stories: []
+  };
+
+  for (const mapping of node.mappings) {
+    const key = mapping.key.value;
+    const value = mapping.value;
+
+    switch (key) {
+      case 'title':
+        prd.title = value.value;
+        break;
+      case 'version':
+        prd.version = value.value;
+        break;
+      case 'user_stories':
+        if (value.kind !== Kind.SEQ) {
+          throw new Error('user_stories must be a sequence');
+        }
+        prd.user_stories = value.items.map(item => {
+          if (item.kind !== Kind.MAP) {
+            throw new Error('Each user story must be a map');
+          }
+          const story: any = {};
+          for (const storyMapping of item.mappings) {
+            const storyKey = storyMapping.key.value;
+            const storyValue = storyMapping.value;
+            
+            if (storyKey === 'scenarios') {
+              if (storyValue.kind !== Kind.SEQ) {
+                throw new Error('scenarios must be a sequence');
+              }
+              story[storyKey] = storyValue.items.map(scenario => {
+                if (scenario.kind !== Kind.MAP) {
+                  throw new Error('Each scenario must be a map');
+                }
+                const scenarioObj: any = {};
+                for (const scenarioMapping of scenario.mappings) {
+                  scenarioObj[scenarioMapping.key.value] = scenarioMapping.value.value;
+                }
+                return scenarioObj;
+              });
+            } else {
+              story[storyKey] = storyValue.value;
+            }
+          }
+          return story;
+        });
+        break;
+    }
+  }
+
+  return prd;
+}
+
+function generateTypeSpec(prd: PRD): string {
+  // Convert PRD structure to TypeSpec code
+  const models = prd.user_stories.map(story => {
+    const modelName = story.title.split(' ')[0]; // Simple heuristic, could be improved
+    return `
+@doc("${story.as_a} wants to ${story.i_want} so that ${story.so_that}")
+model ${modelName} {
+  @key
+  id: string;
+  
+  ${story.scenarios.map(scenario => 
+    `@doc("${scenario.given} ${scenario.when} ${scenario.then}")
+    ${scenario.then.toLowerCase().split(' ')[0]}: string;`
+  ).join('\n  ')}
+}`;
+  }).join('\n\n');
+
+  return `
+@service({
+  title: "${prd.title}",
+  version: "${prd.version}"
+})
+namespace ${prd.title.toLowerCase().replace(/\s+/g, '')};
+
+${models}
+`;
 } 

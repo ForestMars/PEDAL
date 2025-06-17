@@ -13,6 +13,7 @@ from airflow.operators.python import PythonOperator
 import airflow_config
 from config.utils import load_app_env
 
+
 DAG_ID = "process_ts"
 DAG_DESC = "Processes TypeScript files and moves them to the next stage"
 
@@ -24,6 +25,7 @@ WATCHED_DIR = os.path.join(BASE_PATH, "artifacts", "ts", "new")
 DONE_DIR = os.path.join(BASE_PATH, "artifacts", "ts", "done")
 PROCESSED_DIR = os.path.join(BASE_PATH, "artifacts", "database", "new")
 
+# Why aren't we using __main__? Isn't this file run directly? (ie not importing functions?)
 # Ensure directories exist
 for directory in [WATCHED_DIR, DONE_DIR, PROCESSED_DIR]:
     os.makedirs(directory, exist_ok=True)
