@@ -23,6 +23,13 @@ src/
 └── index.ts           # Application entry point
 ```
 
+## Architecture Decisions
+
+This project uses Architecture Decision Records (ADRs) to document important architectural decisions. See [docs/adr/README.md](docs/adr/README.md) for more information.
+
+Current ADRs:
+- [ADR-001: PRD to TypeSpec Transformation Strategy](docs/adr/001-prd-to-typespec-transformation.md)
+
 ## Setup
 
 1. Install dependencies:
@@ -52,4 +59,4 @@ src/
 - `OPENAI_API_KEY`: OpenAI API key for PRD parsing
 - `SUPABASE_URL`: Supabase project URL
 - `SUPABASE_KEY`: Supabase API key
-- `DATABASE_URL`: PostgreSQL connection string 
+- `DATABASE_URL`: PostgreSQL connection string
