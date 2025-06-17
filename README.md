@@ -74,6 +74,4 @@ The `examples/` folder contains sample PRDs and their expected outputs. Try runn
 
 License: All Rights Reserved, Continuum Software
 
-> *Disclaimer:* PEDAL generates code automatically, but it’s still *your* codebase. Always review generated migrations and business logic to ensure they match your product’s needs. After all, trust but verify is key in product engineering.
-
-**Happy coding,** and may your pipelines always be as deterministic as a well-grooved CI script.
+> *Disclaimer:* PEDAL generates code automatically, but it’s still *your* codebase. Always review generated migrations and business logic to ensure they match your product’s needs. Trust, but verify.
