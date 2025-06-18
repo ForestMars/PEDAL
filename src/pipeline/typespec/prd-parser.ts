@@ -1,4 +1,4 @@
-import { Program, createProgram } from "@typespec/compiler";
+import { Program, compile } from "@typespec/compiler";
 import { load as yamlLoad, YAMLNode, Kind, YAMLMapping, YAMLSequence } from 'yaml-ast-parser';
 import fs from 'fs';
 
@@ -40,8 +40,23 @@ export async function parsePRDToTypeSpec(input: { prd?: string }): Promise<{ pro
     // Convert PRD structure to TypeSpec code
     const typeSpecCode = generateTypeSpec(prd);
     
-    // Create TypeSpec program
-    const program = await createProgram(typeSpecCode);
+    // Create TypeSpec program using the correct API
+    const program = await compile({
+      readFile: async (path: string) => typeSpecCode,
+      writeFile: async () => {},
+      getExecutionRoot: () => process.cwd(),
+      getSourceFileKind: () => 'typespec',
+      resolveModule: async () => undefined,
+      getSourceFile: async () => undefined,
+      logSink: {
+        log: () => {},
+        error: () => {},
+        warn: () => {},
+        debug: () => {},
+        trace: () => {},
+        verbose: () => {}
+      }
+    }, 'main.tsp');
     
     // Validate the program
     const diagnostics = program.diagnostics;

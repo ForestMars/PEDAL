@@ -1,13 +1,8 @@
-[![Build Status](https://github.com/ForestMars/PEDAL/actions/workflows/ci.yml/badge.svg)](https://github.com/ForestMars/PEDAL/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-green.svg)](https://www.python.org/downloads/)
-[![TypeScript](https://img.shields.io/badge/typescript-4.x-blue.svg)](https://www.typescriptlang.org/)
 
 # PEDAL – Product Engineering Development Artifact Lifecycle
+## Architecture Oberview and Getting Started 
 
-an end-to-end workflow engine that ingests product requirements and outputs a production‑ready backend stack
-
-## table of contents
+# table of contents
 
 1. overview
 
