@@ -1,0 +1,37 @@
+{
+  "title": "User Management System",
+  "version": "1.0.0",
+  "user_stories": [
+    {
+      "title": "User Registration",
+      "as_a": "new user",
+      "i_want": "to create an account",
+      "so_that": "I can access the system",
+      "scenarios": [
+        {
+          "given": "I am on the registration page",
+          "when": "I enter valid email and password",
+          "then": "my account is created successfully"
+        },
+        {
+          "given": "I am on the registration page",
+          "when": "I enter an invalid email",
+          "then": "I see an error message"
+        }
+      ]
+    },
+    {
+      "title": "User Profile",
+      "as_a": "registered user",
+      "i_want": "to update my profile information",
+      "so_that": "my details are current",
+      "scenarios": [
+        {
+          "given": "I am logged in",
+          "when": "I update my name and bio",
+          "then": "my profile is updated"
+        }
+      ]
+    }
+  ]
+} 

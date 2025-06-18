@@ -1,6 +1,7 @@
 import { Program, compile, NodeHost } from "@typespec/compiler";
 // import { load as yamlLoad, YAMLNode, Kind, YAMLMapping, YAMLSequence } from 'yaml-ast-parser';
 import fs from 'fs';
+import path from 'path';
 
 interface PRD {
   title: string;
@@ -18,11 +19,50 @@ interface PRD {
   }>;
 }
 
+interface ASTEntity {
+  name: string;
+  type: 'model' | 'enum' | 'interface';
+  properties: Array<{
+    name: string;
+    type: string;
+    description?: string;
+    required: boolean;
+    decorators?: string[];
+  }>;
+}
+
+interface ASTRelationship {
+  source: string;
+  target: string;
+  type: 'one-to-one' | 'one-to-many' | 'many-to-many';
+  description?: string;
+}
+
+interface ASTOperation {
+  name: string;
+  entity: string;
+  type: 'create' | 'read' | 'update' | 'delete' | 'list' | 'custom';
+  parameters: Array<{
+    name: string;
+    type: string;
+    required: boolean;
+  }>;
+  decorators?: string[];
+}
+
+interface AST {
+  $schema: string;
+  version: string;
+  entities: ASTEntity[];
+  relationships: ASTRelationship[];
+  operations: ASTOperation[];
+}
+
 interface Diagnostic {
   message: string;
 }
 
-export async function parsePRDToTypeSpec(input: { prd?: string }): Promise<{ program: Program }> {
+export async function parsePRDToTypeSpec(input: { prd?: string }): Promise<{ program: Program; ast: AST }> {
   if (!input.prd) {
     throw new Error('No PRD provided');
   }
@@ -31,8 +71,21 @@ export async function parsePRDToTypeSpec(input: { prd?: string }): Promise<{ pro
     // For now, parse PRD as simple object (we'll fix yaml-ast-parser later)
     const prd = JSON.parse(input.prd) as PRD;
     
-    // Convert PRD structure to TypeSpec code
-    const typeSpecCode = generateTypeSpec(prd);
+    // Generate intermediate AST
+    const ast = generateAST(prd);
+    
+    // Save AST to artifacts/ast/new/
+    const astDir = path.join('artifacts', 'ast', 'new');
+    if (!fs.existsSync(astDir)) {
+      fs.mkdirSync(astDir, { recursive: true });
+    }
+    
+    const astFileName = `${prd.title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}.json`;
+    const astPath = path.join(astDir, astFileName);
+    fs.writeFileSync(astPath, JSON.stringify(ast, null, 2));
+    
+    // Convert AST to TypeSpec code
+    const typeSpecCode = generateTypeSpecFromAST(ast);
     
     // Write TypeSpec code to temporary file
     const tempFile = 'temp-main.tsp';
@@ -50,11 +103,170 @@ export async function parsePRDToTypeSpec(input: { prd?: string }): Promise<{ pro
       throw new Error(`Invalid TypeSpec generated: ${diagnostics.map((d: Diagnostic) => d.message).join('\n')}`);
     }
 
-    return { program };
+    return { program, ast };
   } catch (error) {
     console.error('Error parsing PRD to TypeSpec:', error);
     throw error;
   }
+}
+
+function generateAST(prd: PRD): AST {
+  const entities: ASTEntity[] = [];
+  const relationships: ASTRelationship[] = [];
+  const operations: ASTOperation[] = [];
+
+  // Convert user stories to entities
+  prd.user_stories.forEach(story => {
+    const entityName = story.title.split(' ')[0]; // Simple heuristic
+    
+    const entity: ASTEntity = {
+      name: entityName,
+      type: 'model',
+      properties: [
+        {
+          name: 'id',
+          type: 'string',
+          description: 'Unique identifier',
+          required: true,
+          decorators: ['@key']
+        }
+      ]
+    };
+
+    // Add properties from scenarios
+    story.scenarios.forEach(scenario => {
+      const propertyName = scenario.then.toLowerCase().split(' ')[0];
+      entity.properties.push({
+        name: propertyName,
+        type: 'string',
+        description: `${scenario.given} ${scenario.when} ${scenario.then}`,
+        required: true
+      });
+    });
+
+    entities.push(entity);
+
+    // Add basic CRUD operations for each entity
+    const crudOperations = ['create', 'read', 'update', 'delete', 'list'];
+    crudOperations.forEach(opType => {
+      operations.push({
+        name: `${opType}${entityName}`,
+        entity: entityName,
+        type: opType as any,
+        parameters: opType === 'create' || opType === 'update' ? [
+          { name: 'data', type: entityName, required: true }
+        ] : opType === 'read' || opType === 'delete' ? [
+          { name: 'id', type: 'string', required: true }
+        ] : []
+      });
+    });
+  });
+
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    version: prd.version,
+    entities,
+    relationships,
+    operations
+  };
+}
+
+export function generateZodSchema(ast: AST): string {
+  const imports = `import { z } from 'zod';`;
+  
+  const schemas = ast.entities.map(entity => {
+    const properties: string[] = [];
+    
+    entity.properties.forEach(prop => {
+      let zodType = 'z.string()';
+      
+      // Map TypeScript types to Zod types
+      switch (prop.type.toLowerCase()) {
+        case 'number':
+        case 'int':
+        case 'float':
+          zodType = 'z.number()';
+          break;
+        case 'boolean':
+          zodType = 'z.boolean()';
+          break;
+        case 'date':
+          zodType = 'z.date()';
+          break;
+        case 'string':
+        default:
+          zodType = 'z.string()';
+      }
+      
+      if (prop.required) {
+        properties.push(`  ${prop.name}: ${zodType},`);
+      } else {
+        properties.push(`  ${prop.name}: ${zodType}.optional(),`);
+      }
+    });
+    
+    return `export const ${entity.name}Schema = z.object({
+${properties.join('\n')}
+});`;
+  }).join('\n\n');
+  
+  const operations = ast.operations.map(op => {
+    const params = op.parameters.map(param => {
+      let zodType = 'z.string()';
+      switch (param.type.toLowerCase()) {
+        case 'number':
+          zodType = 'z.number()';
+          break;
+        case 'boolean':
+          zodType = 'z.boolean()';
+          break;
+        default:
+          zodType = 'z.string()';
+      }
+      return param.required ? zodType : `${zodType}.optional()`;
+    });
+    
+    return `export const ${op.name}Schema = z.object({
+  ${op.parameters.map((param, i) => `${param.name}: ${params[i]}`).join(',\n  ')}
+});`;
+  }).join('\n\n');
+  
+  return `${imports}
+
+${schemas}
+
+${operations}
+
+// Export types
+${ast.entities.map(entity => `export type ${entity.name} = z.infer<typeof ${entity.name}Schema>;`).join('\n')}
+${ast.operations.map(op => `export type ${op.name}Params = z.infer<typeof ${op.name}Schema>;`).join('\n')}
+`;
+}
+
+function generateTypeSpecFromAST(ast: AST): string {
+  const models = ast.entities.map(entity => {
+    const properties = entity.properties.map(prop => {
+      let decorators = '';
+      if (prop.decorators) {
+        decorators = prop.decorators.map(d => `  ${d}\n`).join('');
+      }
+      return `${decorators}  ${prop.name}${prop.required ? '' : '?'}: ${prop.type};`;
+    }).join('\n');
+    
+    return `model ${entity.name} {
+${properties}
+}`;
+  }).join('\n\n');
+
+  return `
+@service({
+  title: "Generated from AST",
+  version: "${ast.version}"
+})
+namespace GeneratedService;
+
+${models}
+`;
 }
 
 function convertASTToPRD(node: any): PRD {
@@ -63,29 +275,7 @@ function convertASTToPRD(node: any): PRD {
 }
 
 function generateTypeSpec(prd: PRD): string {
-  // Convert PRD structure to TypeSpec code
-  const models = prd.user_stories.map(story => {
-    const modelName = story.title.split(' ')[0]; // Simple heuristic, could be improved
-    return `
-@doc("${story.as_a} wants to ${story.i_want} so that ${story.so_that}")
-model ${modelName} {
-  @key
-  id: string;
-  
-  ${story.scenarios.map(scenario => 
-    `@doc("${scenario.given} ${scenario.when} ${scenario.then}")
-    ${scenario.then.toLowerCase().split(' ')[0]}: string;`
-  ).join('\n  ')}
-}`;
-  }).join('\n\n');
-
-  return `
-@service({
-  title: "${prd.title}",
-  version: "${prd.version}"
-})
-namespace ${prd.title.toLowerCase().replace(/\s+/g, '')};
-
-${models}
-`;
+  // Legacy function - now using generateTypeSpecFromAST
+  const ast = generateAST(prd);
+  return generateTypeSpecFromAST(ast);
 } 

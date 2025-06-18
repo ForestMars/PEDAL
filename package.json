@@ -9,7 +9,8 @@
     "build": "tsc",
     "test": "jest",
     "validate-prd": "node scripts/validate-prd.js",
-    "validate-ast": "node scripts/validate-ast.js"
+    "validate-ast": "node scripts/validate-ast.js",
+    "generate-zod": "node scripts/generate-zod.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
