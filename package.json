@@ -10,7 +10,9 @@
     "test": "jest",
     "validate-prd": "node scripts/validate-prd.js",
     "validate-ast": "node scripts/validate-ast.js",
-    "generate-zod": "node scripts/generate-zod.js"
+    "generate-zod": "node scripts/generate-zod.js",
+    "generate-oas": "node scripts/generate-oas.js",
+    "pipeline": "node scripts/run-pipeline.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

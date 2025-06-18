@@ -114,10 +114,13 @@ function generateAST(prd: PRD): AST {
   const entities: ASTEntity[] = [];
   const relationships: ASTRelationship[] = [];
   const operations: ASTOperation[] = [];
+  const entityNames = new Set<string>();
 
   // Convert user stories to entities
   prd.user_stories.forEach(story => {
-    const entityName = story.title.split(' ')[0]; // Simple heuristic
+    // Generate unique entity name from story title
+    let entityName = generateUniqueEntityName(story.title, entityNames);
+    entityNames.add(entityName);
     
     const entity: ASTEntity = {
       name: entityName,
@@ -135,7 +138,7 @@ function generateAST(prd: PRD): AST {
 
     // Add properties from scenarios
     story.scenarios.forEach(scenario => {
-      const propertyName = scenario.then.toLowerCase().split(' ')[0];
+      const propertyName = generateUniquePropertyName(scenario.then, entity.properties.map(p => p.name));
       entity.properties.push({
         name: propertyName,
         type: 'string',
@@ -169,6 +172,58 @@ function generateAST(prd: PRD): AST {
     relationships,
     operations
   };
+}
+
+function generateUniqueEntityName(storyTitle: string, existingNames: Set<string>): string {
+  // Convert story title to camelCase entity name
+  let baseName = storyTitle
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join('');
+  
+  // Ensure it starts with a letter
+  if (!/^[a-zA-Z]/.test(baseName)) {
+    baseName = 'Entity' + baseName;
+  }
+  
+  // If name already exists, add a number suffix
+  let finalName = baseName;
+  let counter = 1;
+  while (existingNames.has(finalName)) {
+    finalName = `${baseName}${counter}`;
+    counter++;
+  }
+  
+  return finalName;
+}
+
+function generateUniquePropertyName(scenarioThen: string, existingNames: string[]): string {
+  // Extract meaningful property name from scenario
+  let propertyName = scenarioThen
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+    .split(' ')
+    .filter(word => word.length > 2) // Filter out short words
+    .slice(0, 3) // Take first 3 meaningful words
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join('');
+  
+  // Ensure it starts with a letter
+  if (!/^[a-zA-Z]/.test(propertyName)) {
+    propertyName = 'Property' + propertyName;
+  }
+  
+  // If name already exists, add a number suffix
+  let finalName = propertyName;
+  let counter = 1;
+  while (existingNames.includes(finalName)) {
+    finalName = `${propertyName}${counter}`;
+    counter++;
+  }
+  
+  return finalName;
 }
 
 export function generateZodSchema(ast: AST): string {
