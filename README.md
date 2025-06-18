@@ -1,7 +1,8 @@
 
 
 
-# PEDAL – Product Engineering Development Automation Lifecycle
+# PEDAL
+# Product Engineering Development Automation Lifecycle
 
 PEDAL automates the journey from a **Product Requirements Document (PRD)** to a fully coded backend.  Think of it as a *staff engineer* who parses requirements and scaffolds code—without any dicey AI. In fact, every transformation in PEDAL (excluding the initial PRD validation) is fully deterministic and formally verifiable.  The system runs as a **modular pipeline**: each stage is implemented in code (Typescript/Python core, see below) and output is predictable and auditable.  This makes PEDAL ideal for product-focused teams that demand both speed and rigor.
 
