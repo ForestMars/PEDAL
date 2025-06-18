@@ -1,5 +1,5 @@
 import { Program, createProgram } from "@typespec/compiler";
-import { load as yamlLoad, YAMLNode, Kind } from 'yaml-ast-parser';
+import { load as yamlLoad, YAMLNode, Kind, YAMLMapping, YAMLSequence } from 'yaml-ast-parser';
 import fs from 'fs';
 
 interface PRD {
@@ -16,6 +16,10 @@ interface PRD {
       then: string;
     }>;
   }>;
+}
+
+interface Diagnostic {
+  message: string;
 }
 
 export async function parsePRDToTypeSpec(input: { prd?: string }): Promise<{ program: Program }> {
@@ -42,7 +46,7 @@ export async function parsePRDToTypeSpec(input: { prd?: string }): Promise<{ pro
     // Validate the program
     const diagnostics = program.diagnostics;
     if (diagnostics.length > 0) {
-      throw new Error(`Invalid TypeSpec generated: ${diagnostics.map(d => d.message).join('\n')}`);
+      throw new Error(`Invalid TypeSpec generated: ${diagnostics.map((d: Diagnostic) => d.message).join('\n')}`);
     }
 
     return { program };
@@ -63,7 +67,7 @@ function convertASTToPRD(node: YAMLNode): PRD {
     user_stories: []
   };
 
-  for (const mapping of node.mappings) {
+  for (const mapping of (node as YAMLMapping).mappings) {
     const key = mapping.key.value;
     const value = mapping.value;
 
@@ -78,12 +82,12 @@ function convertASTToPRD(node: YAMLNode): PRD {
         if (value.kind !== Kind.SEQ) {
           throw new Error('user_stories must be a sequence');
         }
-        prd.user_stories = value.items.map(item => {
+        prd.user_stories = (value as YAMLSequence).items.map((item: YAMLNode) => {
           if (item.kind !== Kind.MAP) {
             throw new Error('Each user story must be a map');
           }
           const story: any = {};
-          for (const storyMapping of item.mappings) {
+          for (const storyMapping of (item as YAMLMapping).mappings) {
             const storyKey = storyMapping.key.value;
             const storyValue = storyMapping.value;
             
@@ -91,12 +95,12 @@ function convertASTToPRD(node: YAMLNode): PRD {
               if (storyValue.kind !== Kind.SEQ) {
                 throw new Error('scenarios must be a sequence');
               }
-              story[storyKey] = storyValue.items.map(scenario => {
+              story[storyKey] = (storyValue as YAMLSequence).items.map((scenario: YAMLNode) => {
                 if (scenario.kind !== Kind.MAP) {
                   throw new Error('Each scenario must be a map');
                 }
                 const scenarioObj: any = {};
-                for (const scenarioMapping of scenario.mappings) {
+                for (const scenarioMapping of (scenario as YAMLMapping).mappings) {
                   scenarioObj[scenarioMapping.key.value] = scenarioMapping.value.value;
                 }
                 return scenarioObj;
