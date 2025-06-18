@@ -1,0 +1,165 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "entities": [
+    {
+      "name": "UserRegistration",
+      "type": "model",
+      "properties": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique identifier",
+          "required": true,
+          "decorators": [
+            "@key"
+          ]
+        },
+        {
+          "name": "AccountCreatedSuccessfully",
+          "type": "string",
+          "description": "I am on the registration page I enter valid email and password my account is created successfully",
+          "required": true
+        },
+        {
+          "name": "SeeErrorMessage",
+          "type": "string",
+          "description": "I am on the registration page I enter an invalid email I see an error message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "UserProfile",
+      "type": "model",
+      "properties": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique identifier",
+          "required": true,
+          "decorators": [
+            "@key"
+          ]
+        },
+        {
+          "name": "ProfileUpdated",
+          "type": "string",
+          "description": "I am logged in I update my name and bio my profile is updated",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "relationships": [],
+  "operations": [
+    {
+      "name": "createUserRegistration",
+      "entity": "UserRegistration",
+      "type": "create",
+      "parameters": [
+        {
+          "name": "data",
+          "type": "UserRegistration",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "readUserRegistration",
+      "entity": "UserRegistration",
+      "type": "read",
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "updateUserRegistration",
+      "entity": "UserRegistration",
+      "type": "update",
+      "parameters": [
+        {
+          "name": "data",
+          "type": "UserRegistration",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deleteUserRegistration",
+      "entity": "UserRegistration",
+      "type": "delete",
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listUserRegistration",
+      "entity": "UserRegistration",
+      "type": "list",
+      "parameters": []
+    },
+    {
+      "name": "createUserProfile",
+      "entity": "UserProfile",
+      "type": "create",
+      "parameters": [
+        {
+          "name": "data",
+          "type": "UserProfile",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "readUserProfile",
+      "entity": "UserProfile",
+      "type": "read",
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "updateUserProfile",
+      "entity": "UserProfile",
+      "type": "update",
+      "parameters": [
+        {
+          "name": "data",
+          "type": "UserProfile",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deleteUserProfile",
+      "entity": "UserProfile",
+      "type": "delete",
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listUserProfile",
+      "entity": "UserProfile",
+      "type": "list",
+      "parameters": []
+    }
+  ]
+}

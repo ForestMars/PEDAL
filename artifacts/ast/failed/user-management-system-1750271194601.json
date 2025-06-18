@@ -1,0 +1,165 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "entities": [
+    {
+      "name": "User",
+      "type": "model",
+      "properties": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique identifier",
+          "required": true,
+          "decorators": [
+            "@key"
+          ]
+        },
+        {
+          "name": "my",
+          "type": "string",
+          "description": "I am on the registration page I enter valid email and password my account is created successfully",
+          "required": true
+        },
+        {
+          "name": "i",
+          "type": "string",
+          "description": "I am on the registration page I enter an invalid email I see an error message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "type": "model",
+      "properties": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique identifier",
+          "required": true,
+          "decorators": [
+            "@key"
+          ]
+        },
+        {
+          "name": "my",
+          "type": "string",
+          "description": "I am logged in I update my name and bio my profile is updated",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "relationships": [],
+  "operations": [
+    {
+      "name": "createUser",
+      "entity": "User",
+      "type": "create",
+      "parameters": [
+        {
+          "name": "data",
+          "type": "User",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "readUser",
+      "entity": "User",
+      "type": "read",
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "updateUser",
+      "entity": "User",
+      "type": "update",
+      "parameters": [
+        {
+          "name": "data",
+          "type": "User",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deleteUser",
+      "entity": "User",
+      "type": "delete",
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listUser",
+      "entity": "User",
+      "type": "list",
+      "parameters": []
+    },
+    {
+      "name": "createUser",
+      "entity": "User",
+      "type": "create",
+      "parameters": [
+        {
+          "name": "data",
+          "type": "User",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "readUser",
+      "entity": "User",
+      "type": "read",
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "updateUser",
+      "entity": "User",
+      "type": "update",
+      "parameters": [
+        {
+          "name": "data",
+          "type": "User",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deleteUser",
+      "entity": "User",
+      "type": "delete",
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listUser",
+      "entity": "User",
+      "type": "list",
+      "parameters": []
+    }
+  ]
+}
