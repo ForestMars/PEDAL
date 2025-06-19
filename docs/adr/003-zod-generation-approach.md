@@ -17,10 +17,11 @@ We evaluated two approaches for generating Zod schemas in the PEDAL pipeline: a 
 - Reduces file management overhead (no need to write/read files)
 - Useful for testing, prototyping, or environments where schemas may change frequently or be generated on the fly
 
-This breakdown clarifies why a hybrid approach was chosen: it allows us to leverage the strengths of both methods, depending on the needs of the workflow or deployment scenario.
-
 ## Decision
 We chose a **hybrid approach**: supporting both file-based and object-based Zod generation. This maximizes flexibility for both static code generation and dynamic runtime scenarios.
+
+**Default Behavior:**
+By default, the pipeline uses the object-based Zod schema generation approach. The file-based approach can be enabled via configuration (e.g., CLI flag or YAML setting) for scenarios where static TypeScript files are required.
 
 ## Rationale
 - File-based generation is ideal for producing TypeScript files that can be directly imported into applications and used for static analysis.

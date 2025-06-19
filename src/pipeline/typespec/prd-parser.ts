@@ -226,6 +226,54 @@ function generateUniquePropertyName(scenarioThen: string, existingNames: string[
   return finalName;
 }
 
+/**
+ * Maps AST property type to Zod schema with enhanced type support
+ */
+function mapASTPropertyToZod(prop: ASTEntity['properties'][0]): string {
+  let zodType: string;
+  
+  // Enhanced type mapping with format support
+  switch (prop.type.toLowerCase()) {
+    case 'number':
+    case 'int':
+    case 'integer':
+    case 'float':
+    case 'decimal':
+      zodType = 'z.number()';
+      break;
+    case 'boolean':
+      zodType = 'z.boolean()';
+      break;
+    case 'date':
+    case 'date-time':
+      zodType = 'z.date()';
+      break;
+    case 'uuid':
+      zodType = 'z.string().uuid()';
+      break;
+    case 'email':
+      zodType = 'z.string().email()';
+      break;
+    case 'url':
+    case 'uri':
+      zodType = 'z.string().url()';
+      break;
+    case 'array':
+      // Handle arrays - for now default to string array, will be enhanced in Phase 2
+      zodType = 'z.array(z.string())';
+      break;
+    case 'object':
+      // Handle objects - for now default to record, will be enhanced in Phase 2
+      zodType = 'z.record(z.any())';
+      break;
+    case 'string':
+    default:
+      zodType = 'z.string()';
+  }
+  
+  return zodType;
+}
+
 export function generateZodSchema(ast: AST): string {
   const imports = `import { z } from 'zod';`;
   
@@ -233,25 +281,7 @@ export function generateZodSchema(ast: AST): string {
     const properties: string[] = [];
     
     entity.properties.forEach(prop => {
-      let zodType = 'z.string()';
-      
-      // Map TypeScript types to Zod types
-      switch (prop.type.toLowerCase()) {
-        case 'number':
-        case 'int':
-        case 'float':
-          zodType = 'z.number()';
-          break;
-        case 'boolean':
-          zodType = 'z.boolean()';
-          break;
-        case 'date':
-          zodType = 'z.date()';
-          break;
-        case 'string':
-        default:
-          zodType = 'z.string()';
-      }
+      const zodType = mapASTPropertyToZod(prop);
       
       if (prop.required) {
         properties.push(`  ${prop.name}: ${zodType},`);
@@ -270,10 +300,28 @@ ${properties.join('\n')}
       let zodType = 'z.string()';
       switch (param.type.toLowerCase()) {
         case 'number':
+        case 'int':
+        case 'integer':
+        case 'float':
+        case 'decimal':
           zodType = 'z.number()';
           break;
         case 'boolean':
           zodType = 'z.boolean()';
+          break;
+        case 'date':
+        case 'date-time':
+          zodType = 'z.date()';
+          break;
+        case 'uuid':
+          zodType = 'z.string().uuid()';
+          break;
+        case 'email':
+          zodType = 'z.string().email()';
+          break;
+        case 'url':
+        case 'uri':
+          zodType = 'z.string().url()';
           break;
         default:
           zodType = 'z.string()';
