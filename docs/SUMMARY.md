@@ -1,6 +1,6 @@
 # Summary
 
-* [Introduction](INDEX.md)
+* [Introduction](introduction.md)
 * [Quick Start](quick-start.md)
 * [Core Concepts](core-concepts.md)
 * [Tutorials](tutorials/getting-started.md)
