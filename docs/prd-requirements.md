@@ -21,6 +21,15 @@ A valid PRD for PEDAL must:
 
 ---
 
+## PRD YAML Schema Reference
+
+For the most precise and up-to-date requirements, you can view the target PRD YAML schema that PEDAL uses for validation:
+- [schema/prd-schema.yaml](../schema/prd-schema.yaml)
+
+This schema defines the exact structure, required fields, and allowed values for a valid PRD. Product owners and technical writers should refer to this file to ensure their PRD will be accepted by the pipeline and validation script.
+
+---
+
 ## Best Practices for Product Owners
 
 - **Be explicit**: Ambiguity leads to errors. Clearly state what each entity and field means.
