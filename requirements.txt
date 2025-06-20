@@ -1,6 +1,0 @@
-
-## NB. Using requirements.txt insstead of pyproject.toml bc Airflow doesn't support latter (as of 2.8.2) 
-
-# Apache Airflow for job running. 
-apache-airflow==2.10.5
-# apache-airflow[celery]==2.10.5
