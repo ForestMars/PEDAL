@@ -28,6 +28,15 @@ interface ASTEntity {
     description?: string;
     required: boolean;
     decorators?: string[];
+    // Validation properties
+    minLength?: number;
+    maxLength?: number;
+    pattern?: string;
+    minimum?: number;
+    maximum?: number;
+    minItems?: number;
+    maxItems?: number;
+    uniqueItems?: boolean;
   }>;
 }
 
@@ -227,7 +236,7 @@ function generateUniquePropertyName(scenarioThen: string, existingNames: string[
 }
 
 /**
- * Maps AST property type to Zod schema with enhanced type support
+ * Maps AST property type to Zod schema with enhanced type support and validation rules
  */
 function mapASTPropertyToZod(prop: ASTEntity['properties'][0]): string {
   let zodType: string;
@@ -240,6 +249,13 @@ function mapASTPropertyToZod(prop: ASTEntity['properties'][0]): string {
     case 'float':
     case 'decimal':
       zodType = 'z.number()';
+      // Apply number validation
+      if (prop.minimum !== undefined) {
+        zodType += `.gte(${prop.minimum})`;
+      }
+      if (prop.maximum !== undefined) {
+        zodType += `.lte(${prop.maximum})`;
+      }
       break;
     case 'boolean':
       zodType = 'z.boolean()';
@@ -261,6 +277,16 @@ function mapASTPropertyToZod(prop: ASTEntity['properties'][0]): string {
     case 'array':
       // Handle arrays - for now default to string array, will be enhanced in Phase 2
       zodType = 'z.array(z.string())';
+      // Apply array validation
+      if (prop.minItems !== undefined) {
+        zodType += `.min(${prop.minItems})`;
+      }
+      if (prop.maxItems !== undefined) {
+        zodType += `.max(${prop.maxItems})`;
+      }
+      if (prop.uniqueItems === true) {
+        zodType += `.refine((arr) => arr.length === new Set(arr).size, { message: "Array items must be unique" })`;
+      }
       break;
     case 'object':
       // Handle objects - for now default to record, will be enhanced in Phase 2
@@ -269,6 +295,16 @@ function mapASTPropertyToZod(prop: ASTEntity['properties'][0]): string {
     case 'string':
     default:
       zodType = 'z.string()';
+      // Apply string validation
+      if (prop.minLength !== undefined) {
+        zodType += `.min(${prop.minLength})`;
+      }
+      if (prop.maxLength !== undefined) {
+        zodType += `.max(${prop.maxLength})`;
+      }
+      if (prop.pattern) {
+        zodType += `.regex(/${prop.pattern.replace(/\//g, '\\/')}/)`;
+      }
   }
   
   return zodType;

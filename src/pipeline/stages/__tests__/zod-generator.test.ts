@@ -192,4 +192,397 @@ describe('Zod Generator - Phase 1', () => {
       expect(() => userListSchema.parse(validUserList)).not.toThrow();
     });
   });
+});
+
+describe('Zod Generator - Phase 2', () => {
+  describe('String Validation Rules', () => {
+    it('should handle string length constraints', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                username: { 
+                  type: 'string', 
+                  minLength: 3, 
+                  maxLength: 20 
+                },
+                password: { 
+                  type: 'string', 
+                  minLength: 8 
+                }
+              }
+            }
+          }
+        }
+      };
+
+      const result = await generateZodSchema({ oas: mockOAS });
+      const userSchema = result.schemas.User;
+      
+      // Valid cases
+      expect(() => userSchema.parse({ username: 'john', password: 'password123' })).not.toThrow();
+      expect(() => userSchema.parse({ username: 'john_doe_123', password: 'password123' })).not.toThrow();
+      
+      // Invalid cases
+      expect(() => userSchema.parse({ username: 'jo', password: 'password123' })).toThrow(); // too short
+      expect(() => userSchema.parse({ username: 'john_doe_123_456_789_extra', password: 'password123' })).toThrow(); // too long
+      expect(() => userSchema.parse({ username: 'john', password: 'pass' })).toThrow(); // password too short
+    });
+
+    it('should handle string pattern validation', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                phone: { 
+                  type: 'string', 
+                  pattern: '^\\+?[1-9]\\d{1,14}$' // E.164 phone format
+                },
+                zipCode: { 
+                  type: 'string', 
+                  pattern: '^\\d{5}(-\\d{4})?$' // US ZIP code
+                }
+              }
+            }
+          }
+        }
+      };
+
+      const result = await generateZodSchema({ oas: mockOAS });
+      const userSchema = result.schemas.User;
+      
+      // Valid cases
+      expect(() => userSchema.parse({ phone: '+1234567890', zipCode: '12345' })).not.toThrow();
+      expect(() => userSchema.parse({ phone: '1234567890', zipCode: '12345-6789' })).not.toThrow();
+      
+      // Invalid cases
+      expect(() => userSchema.parse({ phone: 'invalid', zipCode: '12345' })).toThrow();
+      expect(() => userSchema.parse({ phone: '+1234567890', zipCode: 'invalid' })).toThrow();
+    });
+  });
+
+  describe('Number Validation Rules', () => {
+    it('should handle number range constraints', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            Product: {
+              type: 'object',
+              properties: {
+                price: { 
+                  type: 'number', 
+                  minimum: 0,
+                  maximum: 10000
+                },
+                rating: { 
+                  type: 'number', 
+                  minimum: 1,
+                  maximum: 5
+                },
+                quantity: { 
+                  type: 'integer', 
+                  minimum: 0
+                }
+              }
+            }
+          }
+        }
+      };
+
+      const result = await generateZodSchema({ oas: mockOAS });
+      const productSchema = result.schemas.Product;
+      
+      // Valid cases
+      expect(() => productSchema.parse({ price: 100, rating: 4.5, quantity: 10 })).not.toThrow();
+      expect(() => productSchema.parse({ price: 0, rating: 1, quantity: 0 })).not.toThrow();
+      
+      // Invalid cases
+      expect(() => productSchema.parse({ price: -10, rating: 4.5, quantity: 10 })).toThrow(); // negative price
+      expect(() => productSchema.parse({ price: 100, rating: 6, quantity: 10 })).toThrow(); // rating too high
+      expect(() => productSchema.parse({ price: 100, rating: 4.5, quantity: -5 })).toThrow(); // negative quantity
+    });
+
+    it('should handle exclusive minimum/maximum', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            Score: {
+              type: 'object',
+              properties: {
+                value: { 
+                  type: 'number', 
+                  minimum: 0,
+                  maximum: 100,
+                  exclusiveMinimum: true,
+                  exclusiveMaximum: true
+                }
+              }
+            }
+          }
+        }
+      };
+
+      const result = await generateZodSchema({ oas: mockOAS });
+      const scoreSchema = result.schemas.Score;
+      
+      // Valid cases
+      expect(() => scoreSchema.parse({ value: 50 })).not.toThrow();
+      expect(() => scoreSchema.parse({ value: 0.1 })).not.toThrow();
+      expect(() => scoreSchema.parse({ value: 99.9 })).not.toThrow();
+      
+      // Invalid cases
+      expect(() => scoreSchema.parse({ value: 0 })).toThrow(); // equal to minimum
+      expect(() => scoreSchema.parse({ value: 100 })).toThrow(); // equal to maximum
+    });
+
+    it('should handle multipleOf constraint', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            Amount: {
+              type: 'object',
+              properties: {
+                value: { 
+                  type: 'number', 
+                  multipleOf: 0.25
+                }
+              }
+            }
+          }
+        }
+      };
+
+      const result = await generateZodSchema({ oas: mockOAS });
+      const amountSchema = result.schemas.Amount;
+      
+      // Valid cases
+      expect(() => amountSchema.parse({ value: 1.0 })).not.toThrow();
+      expect(() => amountSchema.parse({ value: 1.25 })).not.toThrow();
+      expect(() => amountSchema.parse({ value: 2.5 })).not.toThrow();
+      
+      // Invalid cases
+      expect(() => amountSchema.parse({ value: 1.1 })).toThrow(); // not multiple of 0.25
+      expect(() => amountSchema.parse({ value: 1.33 })).toThrow(); // not multiple of 0.25
+    });
+  });
+
+  describe('Array Validation Rules', () => {
+    it('should handle array length constraints', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            Order: {
+              type: 'object',
+              properties: {
+                items: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  minItems: 1,
+                  maxItems: 10
+                },
+                tags: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  maxItems: 5
+                }
+              }
+            }
+          }
+        }
+      };
+
+      const result = await generateZodSchema({ oas: mockOAS });
+      const orderSchema = result.schemas.Order;
+      
+      // Valid cases
+      expect(() => orderSchema.parse({ items: ['item1'], tags: [] })).not.toThrow();
+      expect(() => orderSchema.parse({ items: ['item1', 'item2'], tags: ['tag1', 'tag2'] })).not.toThrow();
+      
+      // Invalid cases
+      expect(() => orderSchema.parse({ items: [], tags: [] })).toThrow(); // no items
+      expect(() => orderSchema.parse({ items: Array(11).fill('item'), tags: [] })).toThrow(); // too many items
+    });
+
+    it('should handle unique items constraint', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                roles: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  uniqueItems: true
+                },
+                permissions: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  uniqueItems: true
+                }
+              }
+            }
+          }
+        }
+      };
+
+      const result = await generateZodSchema({ oas: mockOAS });
+      const userSchema = result.schemas.User;
+      
+      // Valid cases
+      expect(() => userSchema.parse({ roles: ['admin'], permissions: ['read', 'write'] })).not.toThrow();
+      expect(() => userSchema.parse({ roles: ['admin', 'user'], permissions: ['read'] })).not.toThrow();
+      
+      // Invalid cases
+      expect(() => userSchema.parse({ roles: ['admin', 'admin'], permissions: ['read'] })).toThrow(); // duplicate role
+      expect(() => userSchema.parse({ roles: ['admin'], permissions: ['read', 'read'] })).toThrow(); // duplicate permission
+    });
+  });
+
+  describe('Object Validation Rules', () => {
+    it('should handle property count constraints', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            Config: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                value: { type: 'string' },
+                description: { type: 'string' }
+              },
+              minProperties: 1,
+              maxProperties: 3
+            }
+          }
+        }
+      };
+
+      const result = await generateZodSchema({ oas: mockOAS });
+      const configSchema = result.schemas.Config;
+      
+      // Valid cases
+      expect(() => configSchema.parse({ name: 'test' })).not.toThrow();
+      expect(() => configSchema.parse({ name: 'test', value: 'value' })).not.toThrow();
+      expect(() => configSchema.parse({ name: 'test', value: 'value', description: 'desc' })).not.toThrow();
+      
+      // Invalid cases
+      expect(() => configSchema.parse({})).toThrow(); // no properties
+      expect(() => configSchema.parse({ name: 'test', value: 'value', description: 'desc', extra: 'extra' })).toThrow(); // too many properties
+    });
+  });
+
+  describe('Advanced Validation Features', () => {
+    it('should handle allOf (intersection)', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            Person: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                age: { type: 'number' }
+              }
+            },
+            Employee: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                department: { type: 'string' }
+              }
+            },
+            Manager: {
+              allOf: [
+                { $ref: '#/components/schemas/Person' },
+                { $ref: '#/components/schemas/Employee' },
+                {
+                  type: 'object',
+                  properties: {
+                    reports: {
+                      type: 'array',
+                      items: { type: 'string' }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      };
+
+      const result = await generateZodSchema({ oas: mockOAS });
+      const managerSchema = result.schemas.Manager;
+      
+      // Valid case
+      const validManager = {
+        name: 'John Doe',
+        age: 35,
+        id: 'EMP001',
+        department: 'Engineering',
+        reports: ['EMP002', 'EMP003']
+      };
+      
+      expect(() => managerSchema.parse(validManager)).not.toThrow();
+    });
+
+    it('should handle not (inverse) validation', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            NonEmptyString: {
+              type: 'string',
+              not: {
+                type: 'string',
+                maxLength: 0
+              }
+            }
+          }
+        }
+      };
+
+      const result = await generateZodSchema({ oas: mockOAS });
+      const nonEmptyStringSchema = result.schemas.NonEmptyString;
+      
+      // Valid cases
+      expect(() => nonEmptyStringSchema.parse('hello')).not.toThrow();
+      expect(() => nonEmptyStringSchema.parse('a')).not.toThrow();
+      
+      // Invalid cases
+      expect(() => nonEmptyStringSchema.parse('')).toThrow(); // empty string
+    });
+  });
 }); 
