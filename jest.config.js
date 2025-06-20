@@ -16,4 +16,8 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(@typespec|yaml-ast-parser)/)'
+  ],
+  setupFilesAfterEnv: ['<rootDir>/src/pipeline/stages/__tests__/setup.ts']
 }; 
