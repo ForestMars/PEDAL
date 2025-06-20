@@ -1,7 +1,8 @@
 # Summary
 
-* [Introduction](introduction.md)
+* [Introduction](index.md)
 * [Quick Start](quick-start.md)
+* [PRD Requirements](prd-requirements.md)
 * [Core Concepts](core-concepts.md)
 * [Tutorials](tutorials/getting-started.md)
   * [Advanced Usage](tutorials/advanced-usage.md)
