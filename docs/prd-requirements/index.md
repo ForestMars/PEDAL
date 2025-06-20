@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD) Requirements for PEDAL
 
-> **Critical Requirement:** All user stories in your PRD **must** use the PEDAL hybrid format, combining Connextra context with Gherkin scenario structure. This is essential for deterministic parsing, automation, and unambiguous communication between product and engineering. See [Hybrid User Story Format](./user-story-format.md) for full details, rationale, and canonical examples.
+> **Critical Requirement:** All user stories in your PRD **must** use the PEDAL hybrid format, combining Connextra context ("As a user...") with Gherkin scenario structure. This is essential for deterministic parsing, automation, and unambiguous communication between product and engineering. See [Hybrid User Story Format](./user-story-format.md) for full details, rationale, and canonical examples.
 
 ## Quick Example
 
