@@ -1,18 +1,39 @@
-# Summary
+# PEDAL Documentation
 
-* [Introduction](index.md)
-* [Quick Start](quick-start.md)
-* [Core Concepts](core-concepts.md)
-* [Tutorials](tutorials/getting-started.md)
-  * [Advanced Usage](tutorials/advanced-usage.md)
-* [Reference](reference/cli.md)
-  * [API Reference](reference/api.md)
-  * [Configuration](reference/config.md)
-  * [Error Codes](reference/error-codes.md)
-  * [Workflow Syntax](reference/workflow-syntax.md)
-  * [Glossary](reference/glossary.md)
-* [Troubleshooting](troubleshooting/common-issues.md)
-  * [Debugging](troubleshooting/debugging.md)
-  * [Performance](troubleshooting/performance.md)
-  * [Advanced Diagnostics](troubleshooting/diagnostics.md)
-  * [Getting Help](troubleshooting/getting-help.md) 
+Welcome to PEDAL: the next-generation platform for declarative, type-safe, and extensible API and data pipeline development.
+
+---
+
+## Why PEDAL?
+
+PEDAL is engineered for ambitious teams and 10x engineers who demand:
+- **Type Safety at Scale**: End-to-end type guarantees, from product requirements to runtime validation, powered by Zod and TypeScript.
+- **Declarative Workflows**: Define your entire API, data models, and validation logic in a single source of truth—no more drift between docs, code, and tests.
+- **Automated Code Generation**: Instantly generate OpenAPI, Zod schemas, TypeScript types, and more from high-level specifications.
+- **Extensibility**: Plugin-friendly architecture lets you customize, extend, and automate every stage of your pipeline.
+- **Production-Grade Quality**: Comprehensive test coverage, robust validation, and performance benchmarks ensure reliability at scale.
+
+---
+
+## What You'll Find Here
+
+- **Quick Start**: Get up and running in minutes with real-world examples.
+- **Core Concepts**: Deep dive into PEDAL's architecture, workflow syntax, and design philosophy.
+- **Tutorials**: Step-by-step guides for advanced usage, integration, and customization.
+- **Reference**: Detailed API docs, configuration options, and error codes.
+- **Troubleshooting**: Proven strategies for debugging, performance tuning, and diagnostics.
+- **Contributing**: Guidelines for extending PEDAL and submitting high-impact PRs.
+
+---
+
+## Built for Builders
+
+PEDAL is trusted by top engineering teams to:
+- Eliminate boilerplate and manual schema drift
+- Accelerate delivery of robust, well-documented APIs
+- Empower teams to focus on business logic, not plumbing
+- Scale confidently with type safety, validation, and automation
+
+---
+
+Ready to build the future of APIs and data pipelines? Dive in, explore, and join the PEDAL community of world-class engineers. 
