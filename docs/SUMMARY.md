@@ -7,7 +7,7 @@
   * [Advanced Usage](tutorials/advanced-usage.md)
 * [PRD Requirements](prd-requirements/index.md)
   * [Hybrid User Story Format](prd-requirements/user-story-format.md)
-* [Reference](reference/cli.md)
+* [Command Reference](reference/cli.md)
   * [API Reference](reference/api.md)
   * [Configuration](reference/config.md)
   * [Error Codes](reference/error-codes.md)
