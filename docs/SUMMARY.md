@@ -2,10 +2,11 @@
 
 * [Introduction](index.md)
 * [Quick Start](quick-start.md)
-* [PRD Requirements](prd-requirements.md)
 * [Core Concepts](core-concepts.md)
 * [Tutorials](tutorials/getting-started.md)
   * [Advanced Usage](tutorials/advanced-usage.md)
+* [PRD Requirements](prd-requirements/index.md)
+  * [Hybrid User Story Format](prd-requirements/user-story-format.md)
 * [Reference](reference/cli.md)
   * [API Reference](reference/api.md)
   * [Configuration](reference/config.md)

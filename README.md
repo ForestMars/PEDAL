@@ -4,7 +4,7 @@
 
 # Product Engineering Development Automation Lifecycle (PEDAL)
 
-#### an end-to-end workflow engine that ingests product requirements and outputs a production‑ready backend stack
+#### An end-to-end workflow engine to ingest product requirements and output a production‑ready backend stack
 
 Full documentation at [https://pedal.gitbook.io/docs](https://pedal.gitbook.io/docs)
 
