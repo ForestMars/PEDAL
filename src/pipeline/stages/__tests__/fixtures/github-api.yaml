@@ -1,0 +1,390 @@
+openapi: 3.0.0
+info:
+  title: GitHub API
+  version: 1.0.0
+  description: GitHub API schema for testing
+paths:
+  /users/{username}:
+    get:
+      summary: Get user
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        login:
+          type: string
+          description: The username
+        id:
+          type: integer
+          description: The user ID
+        node_id:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+        gravatar_id:
+          type: string
+        url:
+          type: string
+          format: uri
+        html_url:
+          type: string
+          format: uri
+        followers_url:
+          type: string
+          format: uri
+        following_url:
+          type: string
+          format: uri
+        gists_url:
+          type: string
+          format: uri
+        starred_url:
+          type: string
+          format: uri
+        subscriptions_url:
+          type: string
+          format: uri
+        organizations_url:
+          type: string
+          format: uri
+        repos_url:
+          type: string
+          format: uri
+        events_url:
+          type: string
+          format: uri
+        received_events_url:
+          type: string
+          format: uri
+        type:
+          type: string
+          enum: [User, Organization]
+        site_admin:
+          type: boolean
+        name:
+          type: string
+        company:
+          type: string
+        blog:
+          type: string
+          format: uri
+        location:
+          type: string
+        email:
+          type: string
+          format: email
+        hireable:
+          type: boolean
+        bio:
+          type: string
+        twitter_username:
+          type: string
+        public_repos:
+          type: integer
+          minimum: 0
+        public_gists:
+          type: integer
+          minimum: 0
+        followers:
+          type: integer
+          minimum: 0
+        following:
+          type: integer
+          minimum: 0
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - login
+        - id
+        - node_id
+        - avatar_url
+        - url
+        - html_url
+        - type
+        - site_admin
+        - public_repos
+        - public_gists
+        - followers
+        - following
+        - created_at
+        - updated_at
+    
+    Repository:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier of the repository
+        node_id:
+          type: string
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        full_name:
+          type: string
+        private:
+          type: boolean
+        owner:
+          $ref: '#/components/schemas/User'
+        html_url:
+          type: string
+          format: uri
+        description:
+          type: string
+        fork:
+          type: boolean
+        url:
+          type: string
+          format: uri
+        forks_url:
+          type: string
+          format: uri
+        keys_url:
+          type: string
+          format: uri
+        collaborators_url:
+          type: string
+          format: uri
+        teams_url:
+          type: string
+          format: uri
+        hooks_url:
+          type: string
+          format: uri
+        issue_events_url:
+          type: string
+          format: uri
+        events_url:
+          type: string
+          format: uri
+        assignees_url:
+          type: string
+          format: uri
+        branches_url:
+          type: string
+          format: uri
+        tags_url:
+          type: string
+          format: uri
+        blobs_url:
+          type: string
+          format: uri
+        git_tags_url:
+          type: string
+          format: uri
+        git_refs_url:
+          type: string
+          format: uri
+        trees_url:
+          type: string
+          format: uri
+        statuses_url:
+          type: string
+          format: uri
+        languages_url:
+          type: string
+          format: uri
+        stargazers_url:
+          type: string
+          format: uri
+        contributors_url:
+          type: string
+          format: uri
+        subscribers_url:
+          type: string
+          format: uri
+        subscription_url:
+          type: string
+          format: uri
+        commits_url:
+          type: string
+          format: uri
+        git_commits_url:
+          type: string
+          format: uri
+        comments_url:
+          type: string
+          format: uri
+        issue_comment_url:
+          type: string
+          format: uri
+        contents_url:
+          type: string
+          format: uri
+        compare_url:
+          type: string
+          format: uri
+        merges_url:
+          type: string
+          format: uri
+        archive_url:
+          type: string
+          format: uri
+        downloads_url:
+          type: string
+          format: uri
+        issues_url:
+          type: string
+          format: uri
+        pulls_url:
+          type: string
+          format: uri
+        milestones_url:
+          type: string
+          format: uri
+        notifications_url:
+          type: string
+          format: uri
+        labels_url:
+          type: string
+          format: uri
+        releases_url:
+          type: string
+          format: uri
+        deployments_url:
+          type: string
+          format: uri
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        pushed_at:
+          type: string
+          format: date-time
+        git_url:
+          type: string
+        ssh_url:
+          type: string
+        clone_url:
+          type: string
+          format: uri
+        svn_url:
+          type: string
+          format: uri
+        homepage:
+          type: string
+          format: uri
+        size:
+          type: integer
+          minimum: 0
+        stargazers_count:
+          type: integer
+          minimum: 0
+        watchers_count:
+          type: integer
+          minimum: 0
+        language:
+          type: string
+        has_issues:
+          type: boolean
+        has_projects:
+          type: boolean
+        has_downloads:
+          type: boolean
+        has_wiki:
+          type: boolean
+        has_pages:
+          type: boolean
+        has_discussions:
+          type: boolean
+        forks_count:
+          type: integer
+          minimum: 0
+        mirror_url:
+          type: string
+          format: uri
+        archived:
+          type: boolean
+        disabled:
+          type: boolean
+        open_issues_count:
+          type: integer
+          minimum: 0
+        license:
+          type: object
+          properties:
+            key:
+              type: string
+            name:
+              type: string
+            url:
+              type: string
+              format: uri
+            spdx_id:
+              type: string
+            node_id:
+              type: string
+        allow_forking:
+          type: boolean
+        is_template:
+          type: boolean
+        web_commit_signoff_required:
+          type: boolean
+        topics:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        visibility:
+          type: string
+          enum: [public, private, internal]
+        forks:
+          type: integer
+          minimum: 0
+        open_issues:
+          type: integer
+          minimum: 0
+        watchers:
+          type: integer
+          minimum: 0
+        default_branch:
+          type: string
+      required:
+        - id
+        - node_id
+        - name
+        - full_name
+        - private
+        - owner
+        - html_url
+        - fork
+        - url
+        - created_at
+        - updated_at
+        - pushed_at
+        - size
+        - stargazers_count
+        - watchers_count
+        - has_issues
+        - has_projects
+        - has_downloads
+        - has_wiki
+        - has_pages
+        - has_discussions
+        - forks_count
+        - archived
+        - disabled
+        - open_issues_count
+        - allow_forking
+        - is_template
+        - web_commit_signoff_required
+        - visibility
+        - forks
+        - open_issues
+        - watchers
+        - default_branch 
