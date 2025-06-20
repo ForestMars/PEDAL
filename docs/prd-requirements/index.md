@@ -1,5 +1,24 @@
 # Product Requirements Document (PRD) Requirements for PEDAL
 
+> **Critical Requirement:** All user stories in your PRD **must** use the PEDAL hybrid format, combining Connextra context with Gherkin scenario structure. This is essential for deterministic parsing, automation, and unambiguous communication between product and engineering. See [Hybrid User Story Format](./user-story-format.md) for full details, rationale, and canonical examples.
+
+## Quick Example
+
+```
+As a registered user, I want to reset my password, so that I can regain access if I forget it.
+
+Scenario: Successful password reset
+  Given I am on the password reset page
+  And I have entered my registered email address
+  When I submit the password reset form
+  Then I receive an email with a reset link
+  And my password is updated when I follow the link
+```
+
+Every user story must follow this structure. For more examples and a detailed explanation, see [Hybrid User Story Format](./user-story-format.md).
+
+---
+
 To ensure PEDAL can successfully process your Product Requirements Document (PRD) and generate a production-ready backend, your PRD must meet the following minimum requirements. This guide is for product owners, business analysts, and anyone responsible for authoring or submitting PRDs to the PEDAL pipeline.
 
 ---
@@ -17,7 +36,7 @@ A valid PRD for PEDAL must:
     - (Optional) Field constraints (e.g., required/optional, min/max, format)
 - **Describe relationships between entities** (e.g., `User has many Orders`)
 - **Specify key business rules or validation requirements** (e.g., "Email must be unique", "Order total must be positive")
-- **Include at least one use case or user story** (e.g., "As a user, I can register with my email and password")
+- **Include at least one use case or user story** (see above for required format)
 
 ---
 
