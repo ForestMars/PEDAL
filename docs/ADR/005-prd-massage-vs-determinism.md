@@ -25,6 +25,8 @@ However, PEDAL will offer an **optional, opt-in "AI massage" mode** for users wh
 - The output of the AI massage step will be saved alongside the original PRD, and a warning will be displayed that determinism is no longer guaranteed for this run.
 - Users and auditors will be able to review both the original and massaged PRD, and can choose to re-run the pipeline in strict mode if required.
 
+
+
 ## Rationale
 
 - **Transparency:** Users must be aware when determinism is lost. All AI-massaged PRDs will be clearly flagged and auditable.
