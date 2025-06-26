@@ -6,7 +6,7 @@
 
 #### An end-to-end workflow engine to ingest product requirements and output a production‑ready backend stack
 
-Full documentation at [https://pedal.gitbook.io/docs](https://pedal.gitbook.io/docs)
+**Full documentation at** [https://pedal.gitbook.io/docs](https://pedal.gitbook.io/docs)
 
 PEDAL automates the journey from a Product Requirements Document (PRD) to a fully coded backend.  Think of it as a *staff engineer* who parses requirements and scaffolds code, without any dicey AI. (No shade) Every transformation in PEDAL (excluding the initial PRD validation) is fully deterministic and formally verifiable.  The system runs as a modular pipeline: each stage is implemented in code (Typescript/Python core, see below) and output is predictable and auditable.  This makes PEDAL ideal for product-focused teams that demand both speed and rigor.
 
