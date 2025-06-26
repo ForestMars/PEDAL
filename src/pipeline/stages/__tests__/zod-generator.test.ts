@@ -585,4 +585,216 @@ describe('Zod Generator - Phase 2', () => {
       expect(() => nonEmptyStringSchema.parse('')).toThrow(); // empty string
     });
   });
+});
+
+describe('Zod Generator - Phase 3: Comprehensive Testing', () => {
+  describe('Edge Cases', () => {
+    it('should handle empty strings, arrays, and objects', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            EmptyCases: {
+              type: 'object',
+              properties: {
+                emptyString: { type: 'string', minLength: 0 },
+                emptyArray: { type: 'array', items: { type: 'string' }, minItems: 0 },
+                emptyObject: { type: 'object', minProperties: 0 }
+              }
+            }
+          }
+        }
+      };
+      const result = await generateZodSchema({ oas: mockOAS });
+      const schema = result.schemas.EmptyCases;
+      expect(() => schema.parse({ emptyString: '', emptyArray: [], emptyObject: {} })).not.toThrow();
+    });
+
+    it('should handle boundary values for min/max constraints', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            Boundaries: {
+              type: 'object',
+              properties: {
+                minLen: { type: 'string', minLength: 3 },
+                maxLen: { type: 'string', maxLength: 5 },
+                minItems: { type: 'array', items: { type: 'number' }, minItems: 2 },
+                maxItems: { type: 'array', items: { type: 'number' }, maxItems: 3 }
+              }
+            }
+          }
+        }
+      };
+      const result = await generateZodSchema({ oas: mockOAS });
+      const schema = result.schemas.Boundaries;
+      expect(() => schema.parse({ minLen: 'abc', maxLen: 'abcde', minItems: [1,2], maxItems: [1,2,3] })).not.toThrow();
+      expect(() => schema.parse({ minLen: 'ab', maxLen: 'abcdef', minItems: [1], maxItems: [1,2,3,4] })).toThrow();
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle invalid input types', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            Types: {
+              type: 'object',
+              properties: {
+                str: { type: 'string' },
+                num: { type: 'number' },
+                arr: { type: 'array', items: { type: 'string' } }
+              }
+            }
+          }
+        }
+      };
+      const result = await generateZodSchema({ oas: mockOAS });
+      const schema = result.schemas.Types;
+      expect(() => schema.parse({ str: 123, num: 'abc', arr: 'not-an-array' })).toThrow();
+    });
+
+    it('should handle invalid regex patterns gracefully', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            InvalidPattern: {
+              type: 'object',
+              properties: {
+                field: { type: 'string', pattern: '[invalid-regex' }
+              }
+            }
+          }
+        }
+      };
+      const result = await generateZodSchema({ oas: mockOAS });
+      const schema = result.schemas.InvalidPattern;
+      expect(() => schema.parse({ field: 'any string' })).not.toThrow();
+    });
+  });
+
+  describe('Complex/Nested Validation', () => {
+    it('should handle deeply nested objects and arrays', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            Deep: {
+              type: 'object',
+              properties: {
+                level1: {
+                  type: 'object',
+                  properties: {
+                    level2: {
+                      type: 'object',
+                      properties: {
+                        arr: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                            properties: {
+                              value: { type: 'string', minLength: 2 }
+                            }
+                          },
+                          minItems: 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      };
+      const result = await generateZodSchema({ oas: mockOAS });
+      const schema = result.schemas.Deep;
+      expect(() => schema.parse({ level1: { level2: { arr: [{ value: 'ab' }] } } })).not.toThrow();
+      expect(() => schema.parse({ level1: { level2: { arr: [] } } })).toThrow();
+      expect(() => schema.parse({ level1: { level2: { arr: [{ value: 'a' }] } } })).toThrow();
+    });
+  });
+
+  describe('Advanced Features', () => {
+    it('should handle enum, union, intersection, and not/inverse validation', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            Advanced: {
+              type: 'object',
+              properties: {
+                status: { type: 'string', enum: ['active', 'inactive'] },
+                value: { oneOf: [ { type: 'string' }, { type: 'number' } ] },
+                both: { allOf: [ { type: 'string', minLength: 2 }, { pattern: '^a' } ] },
+                notEmpty: { type: 'string', not: { type: 'string', maxLength: 0 } }
+              }
+            }
+          }
+        }
+      };
+      const result = await generateZodSchema({ oas: mockOAS });
+      const schema = result.schemas.Advanced;
+      expect(() => schema.parse({ status: 'active', value: 42, both: 'ab', notEmpty: 'x' })).not.toThrow();
+      expect(() => schema.parse({ status: 'inactive', value: 'hello', both: 'a1', notEmpty: 'notempty' })).not.toThrow();
+      expect(() => schema.parse({ status: 'invalid', value: true, both: 'b', notEmpty: '' })).toThrow();
+    });
+  });
+
+  describe('Negative Tests for Validation Rules', () => {
+    it('should fail with clear errors for all validation rules', async () => {
+      const mockOAS = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0', description: 'Test API' },
+        paths: {},
+        components: {
+          schemas: {
+            Negatives: {
+              type: 'object',
+              properties: {
+                short: { type: 'string', minLength: 3 },
+                long: { type: 'string', maxLength: 2 },
+                pattern: { type: 'string', pattern: '^abc' },
+                minNum: { type: 'number', minimum: 5 },
+                maxNum: { type: 'number', maximum: 10 },
+                minArr: { type: 'array', items: { type: 'number' }, minItems: 2 },
+                maxArr: { type: 'array', items: { type: 'number' }, maxItems: 1 },
+                minObj: { type: 'object', minProperties: 2 },
+                maxObj: { type: 'object', maxProperties: 1 },
+                notEmpty: { type: 'string', not: { type: 'string', maxLength: 0 } }
+              }
+            }
+          }
+        }
+      };
+      const result = await generateZodSchema({ oas: mockOAS });
+      const schema = result.schemas.Negatives;
+      // Each of these should throw
+      expect(() => schema.parse({ short: 'ab' })).toThrow(/at least 3 characters/);
+      expect(() => schema.parse({ long: 'abc' })).toThrow(/at most 2 characters/);
+      expect(() => schema.parse({ pattern: 'def' })).toThrow(/pattern/);
+      expect(() => schema.parse({ minNum: 4 })).toThrow();
+      expect(() => schema.parse({ maxNum: 11 })).toThrow();
+      expect(() => schema.parse({ minArr: [1] })).toThrow();
+      expect(() => schema.parse({ maxArr: [1,2] })).toThrow();
+      expect(() => schema.parse({ minObj: { a: 1 } })).toThrow(/at least 2 properties/);
+      expect(() => schema.parse({ maxObj: { a: 1, b: 2 } })).toThrow(/at most 1 properties/);
+      expect(() => schema.parse({ notEmpty: '' })).toThrow(/NOT match/);
+    });
+  });
 }); 

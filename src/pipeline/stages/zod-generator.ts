@@ -168,7 +168,10 @@ function applyObjectValidation(zodType: z.ZodObject<any>, prop: OpenAPISchemaPro
   if (prop.minProperties !== undefined || prop.maxProperties !== undefined) {
     result = result.refine(
       (obj) => {
-        const propertyCount = Object.keys(obj).length;
+        // Only count own, present properties (not undefined)
+        const propertyCount = Object.keys(obj).filter(
+          (k) => Object.prototype.hasOwnProperty.call(obj, k) && obj[k] !== undefined
+        ).length;
         if (prop.minProperties !== undefined && propertyCount < prop.minProperties) {
           return false;
         }
@@ -180,10 +183,10 @@ function applyObjectValidation(zodType: z.ZodObject<any>, prop: OpenAPISchemaPro
       {
         message:
           prop.minProperties !== undefined && prop.maxProperties !== undefined
-            ? `Object must have between ${prop.minProperties} and ${prop.maxProperties} properties`
+            ? `Object must have between ${prop.minProperties} and ${prop.maxProperties} present properties`
             : prop.minProperties !== undefined
-            ? `Object must have at least ${prop.minProperties} properties`
-            : `Object must have at most ${prop.maxProperties} properties`,
+            ? `Object must have at least ${prop.minProperties} present properties`
+            : `Object must have at most ${prop.maxProperties} present properties`,
       }
     );
   }
