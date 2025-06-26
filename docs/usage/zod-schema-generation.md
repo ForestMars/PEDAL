@@ -95,4 +95,150 @@ A: The generator will skip or throw for unsupported constructs. See limitations 
 A: See `src/pipeline/stages/__tests__/README.md` for test instructions.
 
 **Q: How do I contribute?**
-A: See CONTRIBUTING.md for guidelines. 
+A: See CONTRIBUTING.md for guidelines.
+
+---
+
+## Schema Patterns & Best Practices
+
+### Common Schema Patterns
+
+#### Basic Types
+```yaml
+Simple:
+  type: object
+  properties:
+    name: { type: string }
+    age: { type: integer }
+    isActive: { type: boolean }
+```
+```typescript
+z.object({
+  name: z.string(),
+  age: z.number().int(),
+  isActive: z.boolean()
+})
+```
+
+#### Validation Rules
+```yaml
+Validated:
+  type: object
+  properties:
+    username: { type: string, minLength: 3, maxLength: 20, pattern: '^[a-zA-Z0-9_]+$' }
+    score: { type: number, minimum: 0, maximum: 100, multipleOf: 0.5 }
+```
+```typescript
+z.object({
+  username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/),
+  score: z.number().gte(0).lte(100).refine(v => v % 0.5 === 0)
+})
+```
+
+#### Required vs. Optional
+```yaml
+User:
+  type: object
+  properties:
+    id: { type: string }
+    email: { type: string }
+    age: { type: integer }
+  required: [id, email]
+```
+```typescript
+z.object({
+  id: z.string(),
+  email: z.string(),
+  age: z.number().int().optional()
+})
+```
+
+#### Enums, Unions, Intersections
+```yaml
+Status:
+  enum: [active, inactive, pending]
+Response:
+  oneOf:
+    - type: string
+    - type: number
+Manager:
+  allOf:
+    - $ref: '#/components/schemas/Person'
+    - $ref: '#/components/schemas/Employee'
+```
+```typescript
+z.enum(['active', 'inactive', 'pending'])
+z.union([z.string(), z.number()])
+z.intersection(PersonSchema, EmployeeSchema)
+```
+
+#### Not/Inverse Validation
+```yaml
+NonEmptyString:
+  type: string
+  not:
+    type: string
+    maxLength: 0
+```
+```typescript
+z.string().refine(val => val.length > 0, { message: 'Must not be empty' })
+```
+
+### Advanced & Real-World Patterns
+
+#### Nested Objects & Arrays
+```yaml
+Order:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: object
+        properties:
+          sku: { type: string }
+          qty: { type: integer, minimum: 1 }
+      minItems: 1
+```
+```typescript
+z.object({
+  items: z.array(z.object({
+    sku: z.string(),
+    qty: z.number().int().gte(1)
+  })).min(1)
+})
+```
+
+#### Cross-Referenced Schemas
+```yaml
+UserProfile:
+  type: object
+  properties:
+    user: { $ref: '#/components/schemas/User' }
+    preferences:
+      type: object
+      properties:
+        theme: { type: string, enum: [light, dark] }
+        notifications: { type: boolean }
+```
+
+#### Format-Specific Strings
+```yaml
+Email:
+  type: string
+  format: email
+```
+```typescript
+z.string().email()
+```
+
+### Best Practices
+- Prefer explicit required/optional fields for clarity.
+- Use OpenAPI validation keywords to maximize Zod's static validation.
+- For custom logic, extend generated schemas with `.refine()` in your codebase.
+- Avoid circular references and unsupported polymorphism.
+- Keep schemas modular and reusable.
+
+### Usage Examples
+- See the [test suite](../../src/pipeline/stages/__tests__/zod-generator.test.ts) for real-world and edge-case examples.
+- Use generated Zod schemas for API validation, form validation, and data transformation. 
