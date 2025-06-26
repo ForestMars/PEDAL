@@ -76,18 +76,19 @@ interface OpenAPISchema {
 function applyStringValidation(zodType: z.ZodString, prop: OpenAPISchemaProperty): z.ZodString {
   let result = zodType;
   
+  // Always apply minLength, including minLength: 0
   if (prop.minLength !== undefined) {
-    result = result.min(prop.minLength);
+    result = result.min(prop.minLength, { message: `Must be at least ${prop.minLength} characters` });
   }
   
   if (prop.maxLength !== undefined) {
-    result = result.max(prop.maxLength);
+    result = result.max(prop.maxLength, { message: `Must be at most ${prop.maxLength} characters` });
   }
   
   if (prop.pattern) {
     try {
       const regex = new RegExp(prop.pattern);
-      result = result.regex(regex);
+      result = result.regex(regex, { message: `Must match pattern: ${prop.pattern}` });
     } catch (error) {
       // If regex is invalid, skip pattern validation
       console.warn(`Invalid regex pattern: ${prop.pattern}`);
@@ -163,6 +164,7 @@ function applyArrayValidation(zodType: z.ZodArray<any>, prop: OpenAPISchemaPrope
 function applyObjectValidation(zodType: z.ZodObject<any>, prop: OpenAPISchemaProperty): z.ZodType<any> {
   let result: z.ZodObject<any> | z.ZodEffects<z.ZodObject<any>> = zodType;
   
+  // Always apply property count validation if minProperties or maxProperties is set
   if (prop.minProperties !== undefined || prop.maxProperties !== undefined) {
     result = result.refine(
       (obj) => {
@@ -175,8 +177,13 @@ function applyObjectValidation(zodType: z.ZodObject<any>, prop: OpenAPISchemaPro
         }
         return true;
       },
-      { 
-        message: `Object must have ${prop.minProperties || 0} to ${prop.maxProperties || 'unlimited'} properties` 
+      {
+        message:
+          prop.minProperties !== undefined && prop.maxProperties !== undefined
+            ? `Object must have between ${prop.minProperties} and ${prop.maxProperties} properties`
+            : prop.minProperties !== undefined
+            ? `Object must have at least ${prop.minProperties} properties`
+            : `Object must have at most ${prop.maxProperties} properties`,
       }
     );
   }
@@ -222,7 +229,7 @@ function mapOpenAPIPropertyToZod(prop: OpenAPISchemaProperty, propName: string):
     const notType = mapOpenAPIPropertyToZod(prop.not, propName);
     zodType = z.any().refine(
       (val) => !notType.safeParse(val).success,
-      { message: 'Value must not match the specified schema' }
+      { message: `Value must NOT match the forbidden schema (not)` }
     );
   }
   // Handle arrays
