@@ -35,6 +35,30 @@ The Zod schema generation module is covered by a comprehensive suite of automate
 
 For details, see the test files in `src/pipeline/stages/__tests__/zod-generator.test.ts` and `zod-generator.integration.test.ts`.
 
+## How to Run the Tests
+
+PEDAL uses [Jest](https://jestjs.io/) for running all unit and integration tests, including Zod schema generation and other pipeline stages.
+
+### Run All Tests
+```bash
+npm test
+```
+
+### Run a Specific Test File
+```bash
+npm test -- src/pipeline/stages/__tests__/zod-generator.test.ts
+```
+
+### Run with Coverage Report
+```bash
+npm test -- --coverage
+```
+
+For more details on Zod schema generation test coverage, see:
+- `src/pipeline/stages/__tests__/README.md`
+
+You can also use these commands for other test files in the pipeline or features directories.
+
 ---
 
 > Next: [Deploying](deploying.md) 
