@@ -32,4 +32,5 @@
   * [Planning](features/planning.md)
   * [Maintenance](features/maintenance.md)
   * [Monitoring](features/monitoring.md)
-  * [Deploying](features/deploying.md) 
+  * [Deploying](features/deploying.md)
+* [Best Practices](best-practices.md) 
