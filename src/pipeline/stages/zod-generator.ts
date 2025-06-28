@@ -167,11 +167,8 @@ function applyObjectValidation(zodType: z.ZodObject<any>, prop: OpenAPISchemaPro
   // Always apply property count validation if minProperties or maxProperties is set
   if (prop.minProperties !== undefined || prop.maxProperties !== undefined) {
     result = result.refine(
-      (obj) => {
-        // Only count own, present properties (not undefined)
-        const propertyCount = Object.keys(obj).filter(
-          (k) => Object.prototype.hasOwnProperty.call(obj, k) && obj[k] !== undefined
-        ).length;
+      (obj: any) => {
+        const propertyCount = Object.keys(obj).length;
         if (prop.minProperties !== undefined && propertyCount < prop.minProperties) {
           return false;
         }
@@ -180,13 +177,12 @@ function applyObjectValidation(zodType: z.ZodObject<any>, prop: OpenAPISchemaPro
         }
         return true;
       },
-      {
-        message:
-          prop.minProperties !== undefined && prop.maxProperties !== undefined
-            ? `Object must have between ${prop.minProperties} and ${prop.maxProperties} present properties`
-            : prop.minProperties !== undefined
-            ? `Object must have at least ${prop.minProperties} present properties`
-            : `Object must have at most ${prop.maxProperties} present properties`,
+      { 
+        message: prop.minProperties !== undefined && prop.maxProperties !== undefined
+          ? `Object must have at least ${prop.minProperties} properties`
+          : prop.minProperties !== undefined
+          ? `Object must have at least ${prop.minProperties} properties`
+          : `Object must have at most ${prop.maxProperties} properties`
       }
     );
   }
@@ -258,7 +254,7 @@ function mapOpenAPIPropertyToZod(prop: OpenAPISchemaProperty, propName: string):
       // Apply object-level validation rules
       if (prop.minProperties !== undefined || prop.maxProperties !== undefined) {
         objectSchema = objectSchema.refine(
-          (obj) => {
+          (obj: any) => {
             const propertyCount = Object.keys(obj).length;
             if (prop.minProperties !== undefined && propertyCount < prop.minProperties) {
               return false;
@@ -269,7 +265,11 @@ function mapOpenAPIPropertyToZod(prop: OpenAPISchemaProperty, propName: string):
             return true;
           },
           { 
-            message: `Object must have ${prop.minProperties || 0} to ${prop.maxProperties || 'unlimited'} properties` 
+            message: prop.minProperties !== undefined && prop.maxProperties !== undefined
+              ? `Object must have at least ${prop.minProperties} properties`
+              : prop.minProperties !== undefined
+              ? `Object must have at least ${prop.minProperties} properties`
+              : `Object must have at most ${prop.maxProperties} properties`
           }
         );
       }
@@ -421,7 +421,7 @@ export async function generateZodSchema(input: { oas: OpenAPISchema }): Promise<
       // Apply object-level validation rules
       if (schema.minProperties !== undefined || schema.maxProperties !== undefined) {
         objectSchema = objectSchema.refine(
-          (obj) => {
+          (obj: any) => {
             const propertyCount = Object.keys(obj).length;
             if (schema.minProperties !== undefined && propertyCount < schema.minProperties) {
               return false;
@@ -432,7 +432,11 @@ export async function generateZodSchema(input: { oas: OpenAPISchema }): Promise<
             return true;
           },
           { 
-            message: `Object must have ${schema.minProperties || 0} to ${schema.maxProperties || 'unlimited'} properties` 
+            message: schema.minProperties !== undefined && schema.maxProperties !== undefined
+              ? `Object must have at least ${schema.minProperties} properties`
+              : schema.minProperties !== undefined
+              ? `Object must have at least ${schema.minProperties} properties`
+              : `Object must have at most ${schema.maxProperties} properties`
           }
         );
       }
