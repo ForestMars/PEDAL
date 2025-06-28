@@ -1,0 +1,37 @@
+{
+  "title": "PEDAL Documentation",
+  "description": "Next-generation platform for declarative, type-safe, and extensible API and data pipeline development",
+  "author": "PEDAL Team",
+  "language": "en",
+  "structure": {
+    "readme": "introduction.md",
+    "summary": "docs/SUMMARY.md"
+  },
+  "plugins": [
+    "search",
+    "highlight",
+    "sharing",
+    "fontsettings",
+    "livereload"
+  ],
+  "pluginsConfig": {
+    "search": {
+      "maxIndexSize": 100000,
+      "ignorecase": true
+    },
+    "sharing": {
+      "facebook": true,
+      "twitter": true,
+      "google": false,
+      "weibo": false,
+      "instapaper": false,
+      "vk": false,
+      "all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+    },
+    "fontsettings": {
+      "theme": "white",
+      "family": "sans",
+      "size": 2
+    }
+  }
+} 
