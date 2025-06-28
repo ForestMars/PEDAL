@@ -54,8 +54,8 @@ PEDAL is designed to streamline and automate workflows for developers, DevOps, a
 - [Administration](administration/user-management.md)
 - [Troubleshooting](troubleshooting/common-issues.md)
 - [Reference](reference/cli.md)
-- [Tutorials](tutorials/ci-cd.md)
-- [Community](community.md)
+- [Tutorials](tutorials/getting-started.md)
+- [Getting Help](troubleshooting/getting-help.md)
 
 ---
 
