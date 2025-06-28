@@ -19,12 +19,19 @@ PEDAL automates the full product engineering lifecycle. Understanding its core c
 - **Artifact**: Output of a build or test (e.g., Docker image).
 
 ## PEDAL Architecture
-- **CLI**: Command-line interface for managing workflows.
-- **API**: RESTful API for automation and integration.
-- **Web Interface**: Dashboard for monitoring and managing workflows.
-- **Backend**: FastAPI server handling orchestration and integrations.
-- **Database**: Stores workflow state and metadata.
 
-![PEDAL Architecture Diagram](../assets/architecture-diagram.png)
+PEDAL follows a modular, service-oriented architecture:
 
-> _Diagram: Replace with actual architecture diagram as available._ 
+- **CLI**: Command-line interface for managing workflows and interacting with the platform.
+- **API**: RESTful API for automation and integration with external systems.
+- **Web Interface**: Dashboard for monitoring and managing workflows visually.
+- **Backend**: FastAPI server handling orchestration, integrations, and business logic.
+- **Database**: Stores workflow state, metadata, and execution history.
+- **Pipeline Engine**: Core orchestration engine that executes workflows and manages dependencies.
+- **Integration Layer**: Handles connections to external services (GitHub, Slack, etc.).
+
+The architecture is designed for scalability, with clear separation of concerns and extensible plugin support.
+
+---
+
+> Next: [Quick Start](quick-start.md) 
